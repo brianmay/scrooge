@@ -25,9 +25,11 @@ defmodule Scrooge.Application do
       Scrooge.Repo,
       # Start the endpoint when the application starts
       ScroogeWeb.Endpoint,
+      # Start MQTT processes
+      {Scrooge.Tesla, []},
       {Tortoise.Connection,
        client_id: get_tortoise_client_id(),
-       handler: {Tortoise.Handler.Logger, []},
+       handler: {Scrooge.MqttHandler, []},
        user_name: user_name,
        password: password,
        server: {
