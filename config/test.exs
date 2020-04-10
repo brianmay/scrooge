@@ -13,3 +13,10 @@ config :logger, level: :warn
 config :scrooge, Scrooge.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   url: System.get_env("DATABASE_URL_TEST")
+
+config :scrooge, Scrooge.Accounts.Guardian,
+  issuer: "scrooge",
+  secret_key: "/q7S9SP028A/BbWqkiisc5qZXbBWQFg8+GSTkflTAfRw/K9jCzJKWpSWvWUEoUU4"
+
+config :scrooge, ScroogeWeb.Endpoint,
+  secret_key_base: "oOWDT+7p6JENufDeyMQFLqDMsj1bkVfQT4Navmr5qYem9crHED4jAMr0Stf4aRNt"
