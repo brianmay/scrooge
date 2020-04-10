@@ -9,14 +9,40 @@ defmodule ScroogeWeb.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :auth do
+    plug Scrooge.Accounts.Pipeline
+  end
+
+  # We use ensure_auth to fail if there is no one logged in
+  pipeline :ensure_auth do
+    plug Guardian.Plug.EnsureAuthenticated
+  end
+
+  pipeline :ensure_admin do
+    plug Guardian.Plug.EnsureAuthenticated
+    plug Scrooge.Accounts.CheckAdmin
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
   end
 
   scope "/", ScroogeWeb do
-    pipe_through :browser
+    pipe_through [:browser, :auth]
 
     get "/", PageController, :index
+    get "/login", SessionController, :new
+    post "/login", SessionController, :login
+    post "/logout", SessionController, :logout
+  end
+
+  scope "/", ScroogeWeb do
+    pipe_through [:browser, :auth, :ensure_auth]
+  end
+
+  scope "/", ScroogeWeb do
+    pipe_through [:browser, :auth, :ensure_admin]
+
     resources "/users", UserController
     get "/users/:id/password", UserController, :password_edit
     put "/users/:id/password", UserController, :password_update

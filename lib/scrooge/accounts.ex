@@ -121,7 +121,7 @@ defmodule Scrooge.Accounts do
   end
 
   @doc """
-  Returns an `%Ecto.Changeset{}` for tacking password changes.
+  Returns an `%Ecto.Changeset{}` for tracking password changes.
 
   ## Examples
 
