@@ -44,7 +44,8 @@ defmodule Scrooge.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:bcrypt_elixir, "~> 2.0"},
-      {:guardian, "~> 2.0"}
+      {:guardian, "~> 2.0"},
+      {:tortoise, "~> 0.9.2"}
     ]
   end
 
@@ -58,7 +59,7 @@ defmodule Scrooge.MixProject do
     [
       "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
-      test: ["ecto.create --quiet", "ecto.migrate", "test"]
+      test: ["ecto.create --quiet", "ecto.migrate", "test --no-start"]
     ]
   end
 end

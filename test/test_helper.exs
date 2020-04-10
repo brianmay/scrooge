@@ -1,2 +1,7 @@
-ExUnit.start()
+Application.ensure_all_started(:tzdata)
+Application.ensure_all_started(:ecto)
+# Application.ensure_all_started(Scrooge.Repo, :temporary)
+{:ok, _} = ScroogeWeb.Endpoint.start_link()
+{:ok, _} = Scrooge.Repo.start_link()
 Ecto.Adapters.SQL.Sandbox.mode(Scrooge.Repo, :manual)
+ExUnit.start()

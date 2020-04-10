@@ -5,15 +5,38 @@ defmodule Scrooge.Application do
 
   use Application
 
+  def get_tortoise_client_id do
+    {:ok, hostname} = :inet.gethostname()
+    hostname = to_string(hostname)
+    "scrooge-#{hostname}"
+  end
+
   def start(_type, _args) do
     # List all child processes to be supervised
+
+    mqtt_host = Application.get_env(:scrooge, :mqtt_host)
+    mqtt_port = Application.get_env(:scrooge, :mqtt_port)
+    ca_cert_file = Application.get_env(:scrooge, :ca_cert_file)
+    user_name = Application.get_env(:scrooge, :mqtt_user_name)
+    password = Application.get_env(:scrooge, :mqtt_password)
+
     children = [
       # Start the Ecto repository
       Scrooge.Repo,
       # Start the endpoint when the application starts
-      ScroogeWeb.Endpoint
-      # Starts a worker by calling: Scrooge.Worker.start_link(arg)
-      # {Scrooge.Worker, arg},
+      ScroogeWeb.Endpoint,
+      {Tortoise.Connection,
+       client_id: get_tortoise_client_id(),
+       handler: {Tortoise.Handler.Logger, []},
+       user_name: user_name,
+       password: password,
+       server: {
+         Tortoise.Transport.SSL,
+         host: mqtt_host, port: mqtt_port, cacertfile: ca_cert_file
+       },
+       subscriptions: [
+         {"tesla", 0}
+       ]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
