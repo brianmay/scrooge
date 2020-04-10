@@ -10,10 +10,17 @@ use Mix.Config
 config :scrooge,
   ecto_repos: [Scrooge.Repo]
 
+config :scrooge, Scrooge.Repo,
+  url: System.get_env("DATABASE_URL"),
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+
+port = String.to_integer(System.get_env("PORT") || "4000")
+
 # Configures the endpoint
 config :scrooge, ScroogeWeb.Endpoint,
-  url: [host: "localhost"],
-  secret_key_base: "tXsv2jdvP39UAB/2L3OaKIpMTEyUIhz1F/dIPwljpVQDUBtQ+vxs99xX7udG+JId",
+  http: [:inet6, port: port],
+  url: [host: "localhost", port: port],
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: ScroogeWeb.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Scrooge.PubSub, adapter: Phoenix.PubSub.PG2]
 

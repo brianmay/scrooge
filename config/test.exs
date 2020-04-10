@@ -1,13 +1,5 @@
 use Mix.Config
 
-# Configure your database
-config :scrooge, Scrooge.Repo,
-  username: "postgres",
-  password: "postgres",
-  database: "scrooge_test",
-  hostname: "localhost",
-  pool: Ecto.Adapters.SQL.Sandbox
-
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :scrooge, ScroogeWeb.Endpoint,
@@ -16,3 +8,8 @@ config :scrooge, ScroogeWeb.Endpoint,
 
 # Print only warnings and errors during test
 config :logger, level: :warn
+
+# Configure your database
+config :scrooge, Scrooge.Repo,
+  pool: Ecto.Adapters.SQL.Sandbox,
+  url: System.get_env("DATABASE_URL_TEST")
