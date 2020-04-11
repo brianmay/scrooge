@@ -8,4 +8,8 @@ defmodule ScroogeWeb.PageController do
   def tesla(conn, _params) do
     render(conn, "tesla.html", active: "tesla")
   end
+
+  def amber(conn, _params) do
+    render(conn, "amber.html", active: "amber")
+  end
 end

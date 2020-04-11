@@ -65,4 +65,8 @@ defmodule ScroogeWeb.LiveView do
 
     Phoenix.HTML.Link.link(text, to: "https://www.google.com/maps/search/#{latitude},#{longitude}")
   end
+
+  defp format_cents(cents) do
+    trunc(Float.round(cents))
+  end
 end

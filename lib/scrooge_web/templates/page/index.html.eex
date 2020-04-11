@@ -7,11 +7,17 @@
   <article class="column">
     <h2>Resources</h2>
     <ul>
-      <% user = Guardian.Plug.current_resource(@conn) %>
-      <%= if not is_nil(user) do %>
-        <li>
-          <%= link "Logout", to: Routes.session_path(@conn, :logout), method: :post %>
-        </li>
+        <% user = Guardian.Plug.current_resource(@conn) %>
+        <%= if not is_nil(user) do %>
+            <li>
+                <%= link "Telsa", to: Routes.page_path(@conn, :tesla) %>
+            </li>
+            <li>
+                <%= link "Amber", to: Routes.page_path(@conn, :amber) %>
+            </li>
+            <li>
+                <%= link "Logout", to: Routes.session_path(@conn, :logout), method: :post %>
+            </li>
       <% else %>
         <li>
           <%= link "Login", to: Routes.session_path(@conn, :login) %>
