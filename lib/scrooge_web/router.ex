@@ -4,7 +4,7 @@ defmodule ScroogeWeb.Router do
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
-    plug :fetch_flash
+    plug :fetch_live_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -34,6 +34,7 @@ defmodule ScroogeWeb.Router do
     get "/login", SessionController, :new
     post "/login", SessionController, :login
     post "/logout", SessionController, :logout
+    get "/tesla", PageController, :tesla
   end
 
   scope "/", ScroogeWeb do

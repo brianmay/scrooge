@@ -7,6 +7,8 @@
 # General application configuration
 use Mix.Config
 
+config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
+
 config :scrooge,
   ecto_repos: [Scrooge.Repo],
   mqtt_host: System.get_env("MQTT_HOST"),
@@ -15,7 +17,8 @@ config :scrooge,
   mqtt_user_name: System.get_env("MQTT_USER_NAME"),
   mqtt_password: System.get_env("MQTT_PASSWORD"),
   build_date: System.get_env("BUILD_DATE"),
-  vcs_ref: System.get_env("VCS_REF")
+  vcs_ref: System.get_env("VCS_REF"),
+  timezone: "Australia/Melbourne"
 
 config :scrooge, Scrooge.Repo,
   url: System.get_env("DATABASE_URL"),
@@ -29,7 +32,10 @@ config :scrooge, ScroogeWeb.Endpoint,
   url: [host: "localhost", port: port],
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: ScroogeWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Scrooge.PubSub, adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: Scrooge.PubSub, adapter: Phoenix.PubSub.PG2],
+  live_view: [
+    signing_salt: System.get_env("SIGNING_SALT")
+  ]
 
 # Configures Elixir's Logger
 config :logger, :console,

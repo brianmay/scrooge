@@ -1,0 +1,2 @@
+<h1>Tesla</h1>
+<%= live_render(@conn, ScroogeWeb.Live.Tesla) %>

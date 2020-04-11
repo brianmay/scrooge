@@ -36,6 +36,7 @@
       Build date: <%= Application.get_env(:scrooge, :build_date) %>
       VCS ref: <%= Application.get_env(:scrooge, :vcs_ref) %>
     </main>
+    <%= csrf_meta_tag() %>
     <script type="text/javascript" src="<%= Routes.static_path(@conn, "/js/app.js") %>"></script>
   </body>
 </html>
