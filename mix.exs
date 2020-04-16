@@ -46,7 +46,7 @@ defmodule Scrooge.MixProject do
       {:bcrypt_elixir, "~> 2.0"},
       {:guardian, "~> 2.0"},
       {:tortoise, "~> 0.9.2"},
-      {:phoenix_live_view, "~> 0.11.1"},
+      {:phoenix_live_view, "~> 0.12.0"},
       {:timex, "~> 3.5"},
       {:mojito, "~> 0.6.1"}
     ]
