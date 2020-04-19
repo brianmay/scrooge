@@ -3,6 +3,7 @@ defmodule Scrooge.Amber do
 
   use GenServer
   require Logger
+  alias Scrooge.Amber.Prices
 
   defmodule State do
     @type t :: %__MODULE__{
@@ -167,6 +168,13 @@ defmodule Scrooge.Amber do
     value
   end
 
+  defp local_time(datetime_string) do
+    {:ok, datetime} = NaiveDateTime.from_iso8601(datetime_string)
+    {:ok, datetime} = DateTime.from_naive(datetime, "Etc/GMT-10")
+    {:ok, local_datetime} = DateTime.shift_zone(datetime, "Australia/Melbourne")
+    local_datetime
+  end
+
   defp add_prices(data) do
     meter_prices =
       Enum.map(data["staticPrices"], fn {meter, value} ->
@@ -177,11 +185,25 @@ defmodule Scrooge.Amber do
 
     prices =
       Enum.map(data["variablePricesAndRenewables"], fn entry ->
+        local_period = local_time(entry["period"])
         wholesale_price = to_float(entry["wholesaleKWHPrice"])
 
+        distribution_loss_factors = Prices.get_distribution_loss_factors(local_period)
+        green_tarif = Prices.get_green_tarif(local_period)
+        market_environment_tarif = Prices.get_market_environment_tarif(local_period)
+
         prices =
-          Enum.map(meter_prices, fn {meter, total_fixed_price, loss_factor} ->
-            price = total_fixed_price + loss_factor * wholesale_price
+          Enum.map(meter_prices, fn {meter, _total_fixed_price, _loss_factor} ->
+            network_tarif = Prices.get_network_tarif(meter, local_period)
+            total_fixed_price = network_tarif + green_tarif + market_environment_tarif
+
+            IO.puts(
+              "#{inspect(local_period)} #{network_tarif} #{green_tarif} #{
+                market_environment_tarif
+              }"
+            )
+
+            price = total_fixed_price + distribution_loss_factors * wholesale_price
             {meter, price}
           end)
           |> Enum.into(%{})
@@ -189,7 +211,7 @@ defmodule Scrooge.Amber do
         entry = Map.put(entry, "prices", prices)
 
         renewables = to_float(entry["renewablesPercentage"]) * 100
-        %{entry | "renewablesPercentage" => renewables}
+        %{entry | "period" => local_period, "renewablesPercentage" => renewables}
       end)
 
     %{data | "variablePricesAndRenewables" => prices}
