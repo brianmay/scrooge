@@ -47,7 +47,7 @@ defmodule Scrooge.Amber.Prices do
 
   def get_distribution_annual_charges(l_dt) do
     # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
-    " Schedule of Tariffs"
+    # " Schedule of Tariffs"
 
     cond do
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 118.00 * 100
