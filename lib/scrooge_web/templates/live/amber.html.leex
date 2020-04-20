@@ -2,7 +2,7 @@
 <p>No Data</p>
 <% else %>
 
-<table>
+<table class="table">
   <tbody>
     <tr>
       <td>currentNEMtime</td>
@@ -21,7 +21,7 @@
 
 <%= for {meter, data} <- @amber_state["staticPrices"] do %>
     <h2><%= meter %></h2>
-    <table>
+    <table class="table">
       <tbody>
         <%= for {key, value} <- data do %>
             <tr>
@@ -34,7 +34,7 @@
 <% end %>
 
 
-<table>
+<table class="table">
   <thead>
     <tr>
       <th>Period</th>

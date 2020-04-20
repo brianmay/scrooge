@@ -1,28 +1,18 @@
-<section class="phx-hero">
-  <h1><%= gettext "Welcome to %{name}!", name: "Scrooge" %></h1>
-  <p>Protect your money from energy companies.</p>
-</section>
+<h1><%= gettext "Welcome to %{name}!", name: "Scrooge" %></h1>
+<p>Protect your money from energy companies.</p>
 
-<section class="row">
-  <article class="column">
-    <h2>Resources</h2>
+<%= if Scrooge.Auth.user_signed_in?(@conn) do %>
     <ul>
-        <% user = Guardian.Plug.current_resource(@conn) %>
-        <%= if not is_nil(user) do %>
-            <li>
-                <%= link "Telsa", to: Routes.page_path(@conn, :tesla) %>
-            </li>
-            <li>
-                <%= link "Amber", to: Routes.page_path(@conn, :amber) %>
-            </li>
-            <li>
-                <%= link "Logout", to: Routes.session_path(@conn, :logout), method: :post %>
-            </li>
-      <% else %>
         <li>
-          <%= link "Login", to: Routes.session_path(@conn, :login) %>
+            <%= link "Telsa", to: Routes.page_path(@conn, :tesla) %>
         </li>
-      <% end %>
+        <li>
+            <%= link "Amber", to: Routes.page_path(@conn, :amber) %>
+        </li>
+        <li>
+            <%= link "Logout", to: Routes.session_path(@conn, :logout), method: :post %>
+        </li>
     </ul>
-  </article>
-</section>
+<% else %>
+    Please <%= link("Login", to: Routes.session_path(@conn, :login)) %>.
+<% end %>
