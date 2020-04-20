@@ -11,7 +11,11 @@ defmodule ScroogeWeb.SessionController do
     if maybe_user do
       redirect(conn, to: Routes.page_path(conn, :index))
     else
-      render(conn, "new.html", changeset: changeset, action: Routes.session_path(conn, :login), active: "index")
+      render(conn, "new.html",
+        changeset: changeset,
+        action: Routes.session_path(conn, :login),
+        active: "index"
+      )
     end
   end
 

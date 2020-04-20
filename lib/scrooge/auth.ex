@@ -1,5 +1,4 @@
 defmodule Scrooge.Auth do
-
   def current_user(conn) do
     Guardian.Plug.current_resource(conn)
   end
@@ -8,4 +7,7 @@ defmodule Scrooge.Auth do
     !!current_user(conn)
   end
 
+  def user_is_admin?(conn) do
+    current_user(conn).is_admin
+  end
 end
