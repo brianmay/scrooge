@@ -2,3 +2,13 @@
 
 @import "~bootstrap/scss/bootstrap";
 #mapid { height: 480px; }
+
+table .ACTUAL {
+    background-color: white;
+    color: grey;
+}
+
+table .FORECAST {
+    background-color: yellow;
+    color: black;
+}

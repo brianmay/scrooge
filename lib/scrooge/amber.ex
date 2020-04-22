@@ -168,9 +168,13 @@ defmodule Scrooge.Amber do
     value
   end
 
-  defp local_time(datetime_string) do
+  defp utc_time(datetime_string) do
     {:ok, datetime} = NaiveDateTime.from_iso8601(datetime_string)
     {:ok, datetime} = DateTime.from_naive(datetime, "Etc/GMT-10")
+    datetime
+  end
+
+  defp utc_to_local_time(datetime) do
     {:ok, local_datetime} = DateTime.shift_zone(datetime, "Australia/Melbourne")
     local_datetime
   end
@@ -185,10 +189,11 @@ defmodule Scrooge.Amber do
 
     prices =
       Enum.map(data["variablePricesAndRenewables"], fn entry ->
-        local_period = local_time(entry["period"])
+        utc_period = utc_time(entry["period"])
+        local_period = utc_to_local_time(utc_period)
         wholesale_price = to_float(entry["wholesaleKWHPrice"])
 
-        distribution_loss_factors = Prices.get_distribution_loss_factors(local_period)
+        loss_factor = Prices.get_loss_factor(local_period)
         green_tarif = Prices.get_green_tarif(local_period)
         market_environment_tarif = Prices.get_market_environment_tarif(local_period)
 
@@ -203,17 +208,30 @@ defmodule Scrooge.Amber do
               }"
             )
 
-            price = total_fixed_price + distribution_loss_factors * wholesale_price
-            {meter, price}
+            price = total_fixed_price + loss_factor * wholesale_price
+
+            values = %{
+              network_tarif: network_tarif,
+              green_tarif: green_tarif,
+              market_environment_tarif: market_environment_tarif,
+              loss_factor: loss_factor,
+              price: price
+            }
+
+            {meter, values}
           end)
           |> Enum.into(%{})
 
         entry = Map.put(entry, "prices", prices)
 
         renewables = to_float(entry["renewablesPercentage"]) * 100
-        %{entry | "period" => local_period, "renewablesPercentage" => renewables}
+        %{entry | "period" => utc_period, "renewablesPercentage" => renewables}
       end)
 
-    %{data | "variablePricesAndRenewables" => prices}
+    %{
+      data
+      | "variablePricesAndRenewables" => prices,
+        "currentNEMtime" => utc_time(data["currentNEMtime"])
+    }
   end
 end

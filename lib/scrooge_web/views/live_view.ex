@@ -3,11 +3,15 @@ defmodule ScroogeWeb.LiveView do
 
   @timezone Application.get_env(:scrooge, :timezone)
 
+  defp parse_date_time(nil), do: nil
+
+  defp parse_date_time(str) do
+    {:ok, dt, 0} = DateTime.from_iso8601(str)
+  end
+
   defp date_time_to_local(nil), do: nil
 
   defp date_time_to_local(dt) do
-    {:ok, dt, 0} = DateTime.from_iso8601(dt)
-
     dt
     |> DateTime.shift_zone!(@timezone)
     |> Timex.format!("%F %T", :strftime)

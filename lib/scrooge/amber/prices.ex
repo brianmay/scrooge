@@ -25,7 +25,7 @@ defmodule Scrooge.Amber.Prices do
     end
   end
 
-  def get_distribution_loss_factors(l_dt) do
+  def get_loss_factor(l_dt) do
     # https://aemo.com.au/energy-systems/electricity/national-electricity-market-nem/market-operations/loss-factors-and-regional-boundaries
     # "Distribution Loss Factors for the 2020-21 Financial Year"
     cond do

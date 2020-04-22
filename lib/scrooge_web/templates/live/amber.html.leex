@@ -2,11 +2,26 @@
 <p>No Data</p>
 <% else %>
 
+<form phx-change="meter">
+  <select name="meter">
+    <option value="">None</option>
+    <%= for meter <- @meters do %>
+        <option value="<%= meter %>" <%= if meter == @meter do %>selected="True"<% end %>><%= meter %></option>
+    <% end %>
+  </select>
+</form>
+
+<script>
+  $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+  })
+</script>
+
 <table class="table">
   <tbody>
     <tr>
       <td>currentNEMtime</td>
-      <td><%= @amber_state["currentNEMtime"] %></td>
+      <td><%= date_time_to_local(@amber_state["currentNEMtime"]) %></td>
     </tr>
     <tr>
       <td>networkProvider</td>
@@ -19,45 +34,39 @@
   </tbody>
 </table>
 
-<%= for {meter, data} <- @amber_state["staticPrices"] do %>
-    <h2><%= meter %></h2>
-    <table class="table">
-      <tbody>
-        <%= for {key, value} <- data do %>
-            <tr>
-              <td><%= key %></td>
-              <td><%= value %></td>
-            </tr>
-        <% end %>
-      </tbody>
-    </table>
+<%= if not is_nil(@meter) do %>
+  <% data = @amber_state["staticPrices"][@meter] %>
+  <h2><%= @meter %></h2>
+  <table class="table">
+    <tbody>
+      <%= for {key, value} <- data do %>
+          <tr>
+            <td><%= key %></td>
+            <td><%= value %></td>
+          </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <h2>Prices</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Period</th>
+        <th>Renewables</th>
+        <th>Price (<%= @meter %>)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for data <- @amber_state["variablePricesAndRenewables"] do %>
+          <tr class="<%= data["periodType"] %>">
+            <% meter_data = data["prices"][@meter] %>
+            <td><%= date_time_to_local(data["period"]) %></td>
+            <td><%= Float.round(data["renewablesPercentage"], 1) %></td>
+            <td class="tooltipTrigger" data-toggle="tooltip" title="<%= inspect meter_data %>"><%= format_cents(meter_data.price) %></td>
+          </tr>
+          <% end %>
+    </tbody>
+  </table>
 <% end %>
-
-
-<table class="table">
-  <thead>
-    <tr>
-      <th>Period</th>
-      <th>Source</th>
-      <th>Type</th>
-      <th>Renewables</th>
-      <th>E1</th>
-      <th>E2</th>
-      <th>B1</th>
-    </tr>
-  </thead>
-  <tbody>
-    <%= for data <- @amber_state["variablePricesAndRenewables"] do %>
-        <tr>
-          <td><%= data["period"] %></td>
-          <td><%= data["periodSource"] %></td>
-          <td><%= data["periodType"] %></td>
-          <td><%= Float.round(data["renewablesPercentage"], 1) %></td>
-          <td><%= format_cents(data["prices"]["E1"]) %></td>
-          <td><%= format_cents(data["prices"]["E2"]) %></td>
-          <td><%= format_cents(data["prices"]["B1"]) %></td>
-        </tr>
-    <% end %>
-  </tbody>
-</table>
 <% end %>
