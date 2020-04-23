@@ -34,27 +34,15 @@
   </tbody>
 </table>
 
-<%= if not is_nil(@meter) do %>
-  <% data = @amber_state["staticPrices"][@meter] %>
-  <h2><%= @meter %></h2>
-  <table class="table">
-    <tbody>
-      <%= for {key, value} <- data do %>
-          <tr>
-            <td><%= key %></td>
-            <td><%= value %></td>
-          </tr>
-      <% end %>
-    </tbody>
-  </table>
-
   <h2>Prices</h2>
   <table class="table">
     <thead>
       <tr>
         <th>Period</th>
         <th>Renewables</th>
+        <%= if not is_nil(@meter) do %>
         <th>Price (<%= @meter %>)</th>
+        <% end %>
       </tr>
     </thead>
     <tbody>
@@ -62,11 +50,12 @@
           <tr class="<%= data["periodType"] %>">
             <% meter_data = data["prices"][@meter] %>
             <td><%= date_time_to_local(data["period"]) %></td>
-            <td><%= Float.round(data["renewablesPercentage"], 1) %></td>
+            <td><%= Float.round(data["renewablesPercentage"], 1) %>%</td>
+            <%= if not is_nil(@meter) do %>
             <td class="tooltipTrigger" data-toggle="tooltip" title="<%= inspect meter_data %>"><%= format_cents(meter_data.price) %></td>
+            <% end %>
           </tr>
           <% end %>
     </tbody>
   </table>
-<% end %>
 <% end %>
