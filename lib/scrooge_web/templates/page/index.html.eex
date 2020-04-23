@@ -14,5 +14,5 @@
         </li>
     </ul>
 <% else %>
-    Please <%= link("Login", to: Routes.session_path(@conn, :login)) %>.
+    Please <%= link("Login", to: Routes.session_path(@conn, :new)) %>.
 <% end %>

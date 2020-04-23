@@ -13,7 +13,7 @@ defmodule ScroogeWeb.SessionController do
     else
       render(conn, "new.html",
         changeset: changeset,
-        action: Routes.session_path(conn, :login),
+        action: Routes.session_path(conn, :new),
         active: "index"
       )
     end

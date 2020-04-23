@@ -28,7 +28,7 @@ defmodule ScroogeWeb.SessionControllerTest do
     setup [:create_user]
 
     test "login as anonymous", %{conn: conn} do
-      conn = get(conn, Routes.session_path(conn, :login))
+      conn = get(conn, Routes.session_path(conn, :new))
       assert html_response(conn, 200) =~ "Login Page"
     end
 

@@ -39,7 +39,7 @@
                       </li>
                   <% else %>
                       <li class="nav-item <%= active_class(@active, "login") %>">
-                          <%= link("Login", to: Routes.session_path(@conn, :login), class: "nav-link") %>
+                          <%= link("Login", to: Routes.session_path(@conn, :new), class: "nav-link") %>
                       </li>
                   <% end %>
 
