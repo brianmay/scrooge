@@ -7,6 +7,7 @@ defmodule ScroogeWeb.LiveView do
 
   defp parse_date_time(str) do
     {:ok, dt, 0} = DateTime.from_iso8601(str)
+    dt
   end
 
   defp date_time_to_local(nil), do: nil
