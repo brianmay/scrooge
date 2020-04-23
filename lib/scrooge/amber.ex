@@ -215,6 +215,7 @@ defmodule Scrooge.Amber do
               green_tarif: green_tarif,
               market_environment_tarif: market_environment_tarif,
               loss_factor: loss_factor,
+              wholesale_price: wholesale_price,
               price: price
             }
 
