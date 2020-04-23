@@ -45,7 +45,13 @@ defmodule ScroogeWeb.Live.Amber do
   end
 
   def handle_event("meter", param, socket) do
-    socket = assign(socket, :meter, param["meter"])
+    meter =
+      case param["meter"] do
+        "" -> nil
+        meter -> meter
+      end
+
+    socket = assign(socket, :meter, meter)
     {:noreply, socket}
   end
 end
