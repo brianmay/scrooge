@@ -14,7 +14,7 @@
 
     <tr>
       <th>Last Update time</th>
-      <td><%= @tesla_state["history"]["date_time"] |> parse_date_time() |> date_time_to_local()  %></td>
+      <td><%= @tesla_state["history"]["date_time"] |> str_to_date_time() |> date_time_to_local()  %></td>
     </tr>
 
     <tr>

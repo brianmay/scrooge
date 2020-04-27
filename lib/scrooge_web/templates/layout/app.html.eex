@@ -18,7 +18,7 @@
               <ul class="navbar-nav mr-auto">
                   <%= if Scrooge.Auth.user_signed_in?(@conn) do %>
                       <li class="nav-item <%= active_class(@active, "amber") %>" >
-                          <%= link("Local", to: Routes.page_path(@conn, :amber), class: "nav-link") %>
+                          <%= link("Amber", to: Routes.page_path(@conn, :amber), class: "nav-link") %>
                       </li>
                       <li class="nav-item <%= active_class(@active, "tesla") %>">
                           <%= link("Tesla", to: Routes.page_path(@conn, :tesla), class: "nav-link") %>

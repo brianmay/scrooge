@@ -3,11 +3,15 @@ defmodule ScroogeWeb.LiveView do
 
   @timezone Application.get_env(:scrooge, :timezone)
 
-  defp parse_date_time(nil), do: nil
+  defp str_to_date_time(nil), do: nil
 
-  defp parse_date_time(str) do
+  defp str_to_date_time(str) do
     {:ok, dt, 0} = DateTime.from_iso8601(str)
     dt
+  end
+
+  defp date_time_to_str(dt) do
+    DateTime.to_iso8601(dt)
   end
 
   defp date_time_to_local(nil), do: nil
@@ -74,4 +78,7 @@ defmodule ScroogeWeb.LiveView do
   defp format_cents(cents) do
     trunc(Float.round(cents))
   end
+
+  defp amber_price_type("ACTUAL"), do: "A"
+  defp amber_price_type("FORECAST"), do: "F"
 end

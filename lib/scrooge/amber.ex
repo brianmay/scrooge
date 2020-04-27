@@ -168,13 +168,18 @@ defmodule Scrooge.Amber do
     value
   end
 
-  defp utc_time(datetime_string) do
+  defp est_time(datetime_string) do
     {:ok, datetime} = NaiveDateTime.from_iso8601(datetime_string)
     {:ok, datetime} = DateTime.from_naive(datetime, "Etc/GMT-10")
     datetime
   end
 
-  defp utc_to_local_time(datetime) do
+  defp dt_to_utc_time(datetime) do
+    {:ok, local_datetime} = DateTime.shift_zone(datetime, "Etc/GMT")
+    local_datetime
+  end
+
+  defp dt_to_local_time(datetime) do
     {:ok, local_datetime} = DateTime.shift_zone(datetime, "Australia/Melbourne")
     local_datetime
   end
@@ -189,8 +194,9 @@ defmodule Scrooge.Amber do
 
     prices =
       Enum.map(data["variablePricesAndRenewables"], fn entry ->
-        utc_period = utc_time(entry["period"])
-        local_period = utc_to_local_time(utc_period)
+        est_period = est_time(entry["period"])
+        utc_period = dt_to_utc_time(est_period)
+        local_period = dt_to_local_time(utc_period)
         wholesale_price = to_float(entry["wholesaleKWHPrice"])
 
         loss_factor = Prices.get_loss_factor(local_period)
@@ -232,7 +238,7 @@ defmodule Scrooge.Amber do
     %{
       data
       | "variablePricesAndRenewables" => prices,
-        "currentNEMtime" => utc_time(data["currentNEMtime"])
+        "currentNEMtime" => est_time(data["currentNEMtime"]) |> dt_to_utc_time()
     }
   end
 end

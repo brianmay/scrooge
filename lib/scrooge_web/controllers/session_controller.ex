@@ -45,9 +45,9 @@ defmodule ScroogeWeb.SessionController do
     |> redirect(to: next)
   end
 
-  defp login_reply({:error, reason}, conn) do
+  defp login_reply({:error, _reason}, conn) do
     conn
-    |> put_flash(:danger, to_string(reason))
+    |> put_flash(:danger, "Invalid credentials")
     |> new(%{})
   end
 end

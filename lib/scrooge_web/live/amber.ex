@@ -34,6 +34,7 @@ defmodule ScroogeWeb.Live.Amber do
     socket =
       socket
       |> assign(:meter, "E1")
+      |> assign(:period, nil)
       |> update_amber_state(amber_state)
 
     {:ok, socket}
@@ -52,6 +53,24 @@ defmodule ScroogeWeb.Live.Amber do
       end
 
     socket = assign(socket, :meter, meter)
+    {:noreply, socket}
+  end
+
+  def handle_event("period", param, socket) do
+    period =
+      case param["period"] do
+        "" ->
+          nil
+
+        period ->
+          case DateTime.from_iso8601(period) do
+            {:ok, dt, 0} -> dt
+            _ -> nil
+          end
+      end
+
+    IO.inspect(period)
+    socket = assign(socket, :period, period)
     {:noreply, socket}
   end
 end

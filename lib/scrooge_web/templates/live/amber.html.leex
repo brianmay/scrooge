@@ -11,12 +11,6 @@
   </select>
 </form>
 
-<script>
-  $(function () {
-      $('[data-toggle="tooltip"]').tooltip()
-  })
-</script>
-
 <table class="table">
   <tbody>
     <tr>
@@ -35,10 +29,11 @@
 </table>
 
   <h2>Prices</h2>
-  <table class="table">
-    <thead>
+  <table class="table table-striped table-hover">
+    <thead class="thead-dark">
       <tr>
         <th>Period</th>
+        <th>Type</th>
         <th>Renewables</th>
         <%= if not is_nil(@meter) do %>
         <th>Price (<%= @meter %>)</th>
@@ -47,15 +42,56 @@
     </thead>
     <tbody>
       <%= for data <- @amber_state["variablePricesAndRenewables"] do %>
-          <tr class="<%= data["periodType"] %>">
+          <% dt = date_time_to_str(data["period"]) %>
+          <tr class="<%= data["periodType"] %>"  phx-click="period" phx-value-period="<%= dt %>">
             <% meter_data = data["prices"][@meter] %>
             <td><%= date_time_to_local(data["period"]) %></td>
+            <td><%= amber_price_type(data["periodType"]) %></td>
             <td><%= Float.round(data["renewablesPercentage"], 1) %>%</td>
             <%= if not is_nil(@meter) do %>
-            <td class="tooltipTrigger" data-toggle="tooltip" title="<%= inspect meter_data %>"><%= format_cents(meter_data.price) %></td>
+            <td class="tooltipTrigger" data-toggle="tooltip" title="<%= inspect meter_data %>">
+              <%= format_cents(meter_data.price) %>
+            </td>
             <% end %>
           </tr>
+          <%= if not is_nil(@period) do %>
+          <%= if DateTime.compare(data["period"], @period) == :eq do %>
+          <tr class="price-detail">
+            <td></td>
+            <td colspan="3">
+              <table class="table hide">
+                <tbody>
+                  <tr>
+                    <td>Green Tarif</td>
+                    <td><%= Float.round(meter_data.green_tarif, 2) %>
+                  </tr>
+                  <tr>
+                    <td>Market Environment Tarif</td>
+                    <td><%= Float.round(meter_data.market_environment_tarif, 2) %>
+                  </tr>
+                  <tr>
+                    <td>Network Tarif</td>
+                    <td><%= Float.round(meter_data.network_tarif, 2) %>
+                  </tr>
+                  <tr>
+                    <td>Wholesale Price</td>
+                    <td><%= Float.round(meter_data.wholesale_price, 2) %>
+                  </tr>
+                  <tr>
+                    <td>Loss Factor</td>
+                    <td><%= Float.round(meter_data.loss_factor, 2) %>
+                  </tr>
+                  <tr>
+                    <td>Price</td>
+                    <td><%= Float.round(meter_data.price, 2) %>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
           <% end %>
+          <% end %>
+      <% end %>
     </tbody>
   </table>
 <% end %>
