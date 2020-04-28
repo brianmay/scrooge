@@ -69,7 +69,13 @@ defmodule ScroogeWeb.Live.Amber do
           end
       end
 
-    IO.inspect(period)
+    period =
+      cond do
+        socket.assigns.period == nil -> period
+        DateTime.compare(period, socket.assigns.period) == :eq -> nil
+        true -> period
+      end
+
     socket = assign(socket, :period, period)
     {:noreply, socket}
   end

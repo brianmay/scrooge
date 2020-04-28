@@ -10,3 +10,16 @@ table .ACTUAL {
 table .FORECAST {
     color: grey;
 }
+
+.expandable {
+    position: relative;
+}
+
+.price-details {
+    position: absolute;
+    width: 400px;
+    right: 10px;
+    background-color: white;
+    border: 2px solid black;
+    z-index: 10;
+}

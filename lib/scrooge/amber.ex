@@ -199,30 +199,40 @@ defmodule Scrooge.Amber do
         local_period = dt_to_local_time(utc_period)
         wholesale_price = to_float(entry["wholesaleKWHPrice"])
 
-        loss_factor = Prices.get_loss_factor(local_period)
-        green_tarif = Prices.get_green_tarif(local_period)
-        market_environment_tarif = Prices.get_market_environment_tarif(local_period)
+        carbon_neutral_offset = Prices.carbon_neutral_offset(local_period)
+        environmental_certificate_cost = Prices.environmental_certificate_cost(local_period)
+        market_charges = Prices.market_charges(local_period)
+        price_protection_hedging = Prices.price_protection_hedging(local_period)
+        loss_factor = Prices.loss_factor(local_period)
 
         prices =
           Enum.map(meter_prices, fn {meter, _total_fixed_price, _loss_factor} ->
-            network_tarif = Prices.get_network_tarif(meter, local_period)
-            total_fixed_price = network_tarif + green_tarif + market_environment_tarif
+            network_tarif = Prices.network_tarif(meter, local_period)
 
-            IO.puts(
-              "#{inspect(local_period)} #{network_tarif} #{green_tarif} #{
-                market_environment_tarif
-              }"
-            )
+            total_fixed =
+              carbon_neutral_offset + environmental_certificate_cost + market_charges +
+                price_protection_hedging + network_tarif
 
-            price = total_fixed_price + loss_factor * wholesale_price
+            total_wholesale = loss_factor * wholesale_price
+            loss = total_wholesale - wholesale_price
+            price = total_fixed + total_wholesale
+
+            total_gst_price = price * 1.1
+            gst = total_gst_price - price
 
             values = %{
+              carbon_neutral_offset: carbon_neutral_offset,
+              environmental_certificate_cost: environmental_certificate_cost,
+              market_charges: market_charges,
+              price_protection_hedging: price_protection_hedging,
               network_tarif: network_tarif,
-              green_tarif: green_tarif,
-              market_environment_tarif: market_environment_tarif,
-              loss_factor: loss_factor,
+              total_fixed: total_fixed,
               wholesale_price: wholesale_price,
-              price: price
+              loss: loss,
+              loss_factor: loss_factor,
+              total_wholesale: total_wholesale,
+              gst: gst,
+              total_gst_price: total_gst_price
             }
 
             {meter, values}

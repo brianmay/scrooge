@@ -1,7 +1,25 @@
 defmodule Scrooge.Amber.Prices do
   @moduledoc false
 
-  def get_network_tarif(_, l_dt) do
+  def carbon_neutral_offset(l_dt) do
+    cond do
+      Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.1100
+    end
+  end
+
+  def environmental_certificate_cost(l_dt) do
+    cond do
+      Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 1.8425
+    end
+  end
+
+  def market_charges(l_dt) do
+    cond do
+      Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.0715
+    end
+  end
+
+  def network_tarif(_, l_dt) do
     # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
     # "Schedule of Tariffs"
     {peak, shoulder, off_peak} =
@@ -25,7 +43,11 @@ defmodule Scrooge.Amber.Prices do
     end
   end
 
-  def get_loss_factor(l_dt) do
+  def price_protection_hedging(_l_dt) do
+    0.5500
+  end
+
+  def loss_factor(l_dt) do
     # https://aemo.com.au/energy-systems/electricity/national-electricity-market-nem/market-operations/loss-factors-and-regional-boundaries
     # "Distribution Loss Factors for the 2020-21 Financial Year"
     cond do
@@ -35,17 +57,11 @@ defmodule Scrooge.Amber.Prices do
     end
   end
 
-  def get_green_tarif(_l_dt) do
-    # FIXME: Need to check source
-    1.9
+  def amber_annual(_l_dt) do
+    120
   end
 
-  def get_market_environment_tarif(_l_dt) do
-    # FIXME: Need to check source
-    2.06846258860692
-  end
-
-  def get_distribution_annual_charges(l_dt) do
+  def distribution_annual_charges(l_dt) do
     # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
     # " Schedule of Tariffs"
 
@@ -56,7 +72,7 @@ defmodule Scrooge.Amber.Prices do
     end
   end
 
-  def get_meter_annual_charges(l_dt) do
+  def meter_annual_charges(l_dt) do
     # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
     # "Schedule of Prescribed Metering"
     cond do
