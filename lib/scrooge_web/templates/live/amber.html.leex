@@ -49,7 +49,7 @@
             <td><%= amber_price_type(data["periodType"]) %></td>
             <td><%= Float.round(data["renewablesPercentage"], 1) %>%</td>
             <%= if not is_nil(@meter) do %>
-            <td class="expandable tooltipTrigger" data-toggle="tooltip" title="<%= inspect meter_data %>">
+            <td class="expandable">
               <%= format_cents(meter_data.total_gst_price) %>
               <%= if not is_nil(@period) do %>
               <%= if DateTime.compare(data["period"], @period) == :eq do %>
