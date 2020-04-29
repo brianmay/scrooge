@@ -34,9 +34,9 @@
       <tr>
         <th>Period</th>
         <th>Type</th>
-        <th>Renewables</th>
+        <th class="number">Renewables</th>
         <%= if not is_nil(@meter) do %>
-        <th>Price (<%= @meter %>)</th>
+        <th class="number">Price (<%= @meter %>)</th>
         <% end %>
       </tr>
     </thead>
@@ -47,57 +47,57 @@
             <% meter_data = data["prices"][@meter] %>
             <td><%= date_time_to_local(data["period"]) %></td>
             <td><%= amber_price_type(data["periodType"]) %></td>
-            <td><%= Float.round(data["renewablesPercentage"], 1) %>%</td>
+            <td class="number"><%= Float.round(data["renewablesPercentage"], 1) %>%</td>
             <%= if not is_nil(@meter) do %>
             <td class="expandable">
-              <%= format_cents(meter_data.total_gst_price) %>
+              <div class="number"><%= format_cents(meter_data.total_gst_price) %></div>
               <%= if not is_nil(@period) do %>
               <%= if DateTime.compare(data["period"], @period) == :eq do %>
               <table class="table price-details">
                 <tbody>
                   <tr>
                     <td>Carbon Neutral Offset</td>
-                    <td><%= Float.round(meter_data.carbon_neutral_offset, 2) %>
+                    <td class="number"><%= Float.round(meter_data.carbon_neutral_offset, 2) %>
                   </tr>
                   <tr>
                     <td>Environmental Certificate Cost</td>
-                    <td><%= Float.round(meter_data.environmental_certificate_cost, 2) %>
+                    <td class="number"><%= Float.round(meter_data.environmental_certificate_cost, 2) %>
                   </tr>
                   <tr>
                     <td>Market Charges</td>
-                    <td><%= Float.round(meter_data.market_charges, 2) %>
+                    <td class="number"><%= Float.round(meter_data.market_charges, 2) %>
                   </tr>
                   <tr>
                     <td>Price Protection Hedging</td>
-                    <td><%= Float.round(meter_data.price_protection_hedging, 2) %>
+                    <td class="number"><%= Float.round(meter_data.price_protection_hedging, 2) %>
                   </tr>
                   <tr>
                     <td>Network Tarif</td>
-                    <td><%= Float.round(meter_data.network_tarif, 2) %>
+                    <td class="number"><%= Float.round(meter_data.network_tarif, 2) %>
                   </tr>
                   <tr>
                     <td>Total Fixed</td>
-                    <td><%= Float.round(meter_data.total_fixed, 2) %>
+                    <td class="number"><%= Float.round(meter_data.total_fixed, 2) %>
                   </tr>
                   <tr>
                     <td>Wholesale Price</td>
-                    <td><%= Float.round(meter_data.wholesale_price, 2) %>
+                    <td class="number"><%= Float.round(meter_data.wholesale_price, 2) %>
                   </tr>
                   <tr>
                     <td>Loss (<%= meter_data.loss_factor %>)</td>
-                    <td><%= Float.round(meter_data.loss, 2) %>
+                    <td class="number"><%= Float.round(meter_data.loss, 2) %>
                   </tr>
                   <tr>
                     <td>Total Wholesale</td>
-                    <td><%= Float.round(meter_data.total_wholesale, 2) %>
+                    <td class="number"><%= Float.round(meter_data.total_wholesale, 2) %>
                   </tr>
                   <tr>
                     <td>GST</td>
-                    <td><%= Float.round(meter_data.gst, 2) %>
+                    <td class="number"><%= Float.round(meter_data.gst, 2) %>
                   </tr>
                   <tr>
                     <td>Total</td>
-                    <td><%= Float.round(meter_data.total_gst_price, 2) %>
+                    <td class="number"><%= Float.round(meter_data.total_gst_price, 2) %>
                   </tr>
                 </tbody>
               </table>
