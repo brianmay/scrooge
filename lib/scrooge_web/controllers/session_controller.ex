@@ -15,8 +15,7 @@ defmodule ScroogeWeb.SessionController do
       render(conn, "new.html",
         changeset: changeset,
         action: Routes.session_path(conn, :new, next: next),
-        active: "index",
-        next: next
+        active: "index"
       )
     end
   end
@@ -36,6 +35,7 @@ defmodule ScroogeWeb.SessionController do
     next =
       case conn.query_params["next"] do
         "" -> Routes.page_path(conn, :index)
+        nil -> Routes.page_path(conn, :index)
         next -> next
       end
 
