@@ -14,7 +14,7 @@
 
     <tr>
       <th>Last Update time</th>
-      <td><%= @tesla_state["history"]["date_time"] |> str_to_date_time() |> date_time_to_local()  %></td>
+      <td><%= @tesla_state["history"]["date_time"] |> str_to_date_time() |> date_time_to_local() %></td>
     </tr>
 
     <tr>
@@ -71,7 +71,7 @@
 
     <tr>
       <th>Warning</th>
-      <td><%= date_time_to_local(@tesla_state["state"]["next_warning_time"]) %> <%= inspect @tesla_state["state"]["warning_ok"] %></td>
+      <td><%= @tesla_state["state"]["next_warning_time"] |> str_to_date_time() |> date_time_to_local() %></td>
     </tr>
 
     <tr>
