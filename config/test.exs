@@ -14,6 +14,10 @@ config :scrooge, Scrooge.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   url: System.get_env("DATABASE_URL_TEST")
 
+config :scrooge, Scrooge.TeNerves,
+  pool: Ecto.Adapters.SQL.Sandbox,
+  url: System.get_env("TENERVES_URL_TEST")
+
 config :scrooge, Scrooge.Accounts.Guardian,
   issuer: "scrooge",
   secret_key: "/q7S9SP028A/BbWqkiisc5qZXbBWQFg8+GSTkflTAfRw/K9jCzJKWpSWvWUEoUU4"

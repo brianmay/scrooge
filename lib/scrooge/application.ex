@@ -23,6 +23,7 @@ defmodule Scrooge.Application do
     children = [
       # Start the Ecto repository
       Scrooge.Repo,
+      Scrooge.TeNerves,
       # Start the endpoint when the application starts
       ScroogeWeb.Endpoint,
       # Start Amber process

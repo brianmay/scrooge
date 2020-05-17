@@ -1,0 +1,40 @@
+<table class="table table-hover">
+  <thead class="thead-dark">
+    <tr>
+      <th>Time</th>
+      <th>count</th>
+      <th>seconds</th>
+      <th>km</th>
+      <th>kwh</th>
+      <th>c/kw</th>
+      <th>$</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <%= for entry <- @tesla_history do %>
+      <tr>
+        <td><%= entry.rounded_time |> date_time_to_local() %></td>
+        <td><%= entry.count %></td>
+        <td><%= entry.delta_time %></td>
+        <td><%= entry.delta_odometer*1000 |> format_distance() %></td>
+        <td><%= entry.delta_charge_energy_added |> Float.round(2) %></td>
+        <%= if not is_nil(entry.cents_per_kwh) do %>
+          <td><%= entry.cents_per_kwh |> format_cents %></td>
+          <td><%= entry.total_cents |> format_cents_as_dollars %></td>
+        <% else %>
+          <td>-</td>
+          <td>-</td>
+        <% end %>
+      </tr>
+    <% end %>
+    <tr>
+        <td>TOTAL</td>
+        <td><%= @tesla_totals.total_count %></td>
+        <td><%= @tesla_totals.total_time %></td>
+        <td><%= @tesla_totals.total_odometer |> format_distance() %></td>
+        <td><%= @tesla_totals.total_charge_energy_added |> Float.round(2) %></td>
+        <td></td>
+        <td><%= @tesla_totals.total_cents |> format_cents_as_dollars %></td>
+  </tbody>
+</table>

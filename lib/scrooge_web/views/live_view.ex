@@ -79,6 +79,12 @@ defmodule ScroogeWeb.LiveView do
     trunc(Float.round(cents))
   end
 
+  defp format_cents_as_dollars(cents) do
+    value = round(cents)
+    {d, c} = div_rem(value, 100)
+    "#{d}.#{pad(c, 2)}"
+  end
+
   defp amber_price_type("ACTUAL"), do: "A"
   defp amber_price_type("FORECAST"), do: "F"
 end

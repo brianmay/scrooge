@@ -40,6 +40,7 @@ defmodule ScroogeWeb.Router do
     pipe_through [:browser, :auth, :ensure_auth]
     get "/amber", PageController, :amber
     get "/tesla", PageController, :tesla
+    get "/tesla/usage", PageController, :tesla_usage
   end
 
   scope "/", ScroogeWeb do
