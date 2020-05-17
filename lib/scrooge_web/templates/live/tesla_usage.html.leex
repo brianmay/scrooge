@@ -32,7 +32,7 @@
         <td>TOTAL</td>
         <td><%= @tesla_totals.total_count %></td>
         <td><%= @tesla_totals.total_time %></td>
-        <td><%= @tesla_totals.total_odometer |> format_distance() %></td>
+        <td><%= @tesla_totals.total_odometer*1000 |> format_distance() %></td>
         <td><%= @tesla_totals.total_charge_energy_added |> Float.round(2) %></td>
         <td></td>
         <td><%= @tesla_totals.total_cents |> format_cents_as_dollars %></td>
