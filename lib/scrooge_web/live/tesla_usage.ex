@@ -72,7 +72,7 @@ defmodule ScroogeWeb.Live.TeslaUsage do
       end)
 
     {total_count, total_time, total_odometer, total_charge_energe_added, total_cents} =
-      Enum.reduce(tesla_history, {0, 0.0, 0.0, 0.0, 0.0}, fn
+      Enum.reduce(tesla_history, {0, 0, 0.0, 0.0, 0.0}, fn
         entry, {count, time, odometer, charge_energy_added, total_cents} ->
           count = count + entry.count
           time = time + entry.delta_time
