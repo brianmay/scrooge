@@ -21,7 +21,7 @@ defmodule Scrooge.Amber do
   end
 
   def poll() do
-    Logger.debug("TeNerves.Poller: Got poll request")
+    Logger.debug("Amber.Poller: Got poll request")
     GenServer.call(__MODULE__, :poll, 30000)
   end
 
@@ -100,13 +100,13 @@ defmodule Scrooge.Amber do
     new_state =
       cond do
         Timex.before?(now, earliest_time) ->
-          Logger.debug("TeNerves.Poller: Timer received too early for #{next_time}.")
+          Logger.debug("Amber.Poller: Timer received too early for #{next_time}.")
 
           state
           |> set_timer()
 
         Timex.before?(now, latest_time) ->
-          Logger.debug("TeNerves.Poller: Timer received on time for #{next_time}.")
+          Logger.debug("Amber.Poller: Timer received on time for #{next_time}.")
 
           state
           |> handle_poll()
@@ -114,7 +114,7 @@ defmodule Scrooge.Amber do
           |> set_timer()
 
         true ->
-          Logger.debug("TeNerves.Poller: Timer received too late for #{next_time}.")
+          Logger.debug("Amber.Poller: Timer received too late for #{next_time}.")
 
           state
           |> Map.put(:next_time, nil)
