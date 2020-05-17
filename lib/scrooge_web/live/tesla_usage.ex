@@ -34,7 +34,7 @@ defmodule ScroogeWeb.Live.TeslaUsage do
 
   defp update_tesla_history(socket) do
     {:ok, now} = DateTime.now("Etc/UTC")
-    start = DateTime.add(now, -(60 * 60 * 24 * 30))
+    start = DateTime.add(now, -(60 * 60 * 24))
     stop = now
 
     tesla_history =
