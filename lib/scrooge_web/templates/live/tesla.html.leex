@@ -61,7 +61,7 @@
 
     <tr>
       <th>Unlocked time</th>
-      <td><%= date_time_to_local(@tesla_state["state"]["unlocked_time"]) %></td>
+      <td><%= @tesla_state["state"]["unlocked_time"] |> str_to_date_time() |> date_time_to_local() %></td>
     </tr>
 
     <tr>
