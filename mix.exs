@@ -48,7 +48,7 @@ defmodule Scrooge.MixProject do
       {:tortoise, "~> 0.9.2"},
       {:phoenix_live_view, "~> 0.13.0"},
       {:timex, "~> 3.5"},
-      {:mojito, "~> 0.6.1"}
+      {:mojito, "~> 0.7.1"}
     ]
   end
 
