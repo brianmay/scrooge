@@ -85,6 +85,6 @@ defmodule ScroogeWeb.LiveView do
     "#{d}.#{pad(c, 2)}"
   end
 
-  defp amber_price_type("ACTUAL"), do: "A"
-  defp amber_price_type("FORECAST"), do: "F"
+  defp aemo_price_type("ACTUAL"), do: "A"
+  defp aemo_price_type("FORECAST"), do: "F"
 end

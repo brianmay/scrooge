@@ -1,16 +1,12 @@
-defmodule ScroogeWeb.Live.Amber do
+defmodule ScroogeWeb.Live.Aemo do
   use Phoenix.LiveView
 
   def render(assigns) do
-    ScroogeWeb.LiveView.render("amber.html", assigns)
+    ScroogeWeb.LiveView.render("aemo.html", assigns)
   end
 
-  defp update_amber_state(socket, amber_state) do
-    meters =
-      case amber_state do
-        nil -> []
-        data -> Map.keys(data["staticPrices"])
-      end
+  defp update_aemo_state(socket, aemo_state) do
+    meters = ["E1"]
 
     meter = socket.assigns.meter
 
@@ -22,27 +18,27 @@ defmodule ScroogeWeb.Live.Amber do
       end
 
     socket
-    |> assign(:amber_state, amber_state)
+    |> assign(:aemo_state, aemo_state)
     |> assign(:meters, meters)
     |> assign(:meter, meter)
   end
 
   def mount(_params, _session, socket) do
-    Scrooge.Amber.register(self())
-    amber_state = Scrooge.Amber.get_amber_state()
+    Scrooge.Aemo.register(self())
+    aemo_state = Scrooge.Aemo.get_aemo_state()
 
     socket =
       socket
       |> assign(:meter, "E1")
       |> assign(:period, nil)
-      |> update_amber_state(amber_state)
+      |> update_aemo_state(aemo_state)
 
     {:ok, socket}
   end
 
-  def handle_cast({:update_amber_state, amber_state}, socket) do
-    socket = update_amber_state(socket, amber_state)
-    {:noreply, assign(socket, :amber_state, amber_state)}
+  def handle_cast({:update_aemo_state, aemo_state}, socket) do
+    socket = update_aemo_state(socket, aemo_state)
+    {:noreply, assign(socket, :aemo_state, aemo_state)}
   end
 
   def handle_event("meter", param, socket) do

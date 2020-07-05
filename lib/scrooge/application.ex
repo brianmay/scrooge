@@ -26,8 +26,8 @@ defmodule Scrooge.Application do
       Scrooge.TeNerves,
       # Start the endpoint when the application starts
       ScroogeWeb.Endpoint,
-      # Start Amber process
-      {Scrooge.Amber, []},
+      # Start Aemo process
+      {Scrooge.Aemo, []},
       # Start MQTT processes
       {Scrooge.Tesla, []},
       {Tortoise.Connection,

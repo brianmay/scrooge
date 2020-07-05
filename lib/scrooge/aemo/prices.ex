@@ -1,4 +1,4 @@
-defmodule Scrooge.Amber.Prices do
+defmodule Scrooge.Aemo.Prices do
   @moduledoc false
 
   def carbon_neutral_offset(l_dt) do
@@ -57,7 +57,7 @@ defmodule Scrooge.Amber.Prices do
     end
   end
 
-  def amber_annual(_l_dt) do
+  def aemo_annual(_l_dt) do
     120
   end
 

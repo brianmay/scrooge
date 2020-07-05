@@ -1,0 +1,2 @@
+<h1>Aemo</h1>
+<%= live_render(@conn, ScroogeWeb.Live.Aemo) %>

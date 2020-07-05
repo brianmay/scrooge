@@ -1,4 +1,4 @@
-<%= if is_nil(@amber_state) do %>
+<%= if is_nil(@aemo_state) do %>
 <p>No Data</p>
 <% else %>
 
@@ -15,15 +15,7 @@
   <tbody>
     <tr>
       <td>currentNEMtime</td>
-      <td><%= date_time_to_local(@amber_state["currentNEMtime"]) %></td>
-    </tr>
-    <tr>
-      <td>networkProvider</td>
-      <td><%= @amber_state["networkProvider"] %></td>
-    </tr>
-    <tr>
-      <td>postcode</td>
-      <td><%= @amber_state["postcode"] %></td>
+      <td><%= date_time_to_local(@aemo_state["currentNEMtime"]) %></td>
     </tr>
   </tbody>
 </table>
@@ -34,20 +26,18 @@
       <tr>
         <th>Period</th>
         <th>Type</th>
-        <th class="number">Renewables</th>
         <%= if not is_nil(@meter) do %>
         <th class="number">Price (<%= @meter %>)</th>
         <% end %>
       </tr>
     </thead>
     <tbody>
-      <%= for data <- @amber_state["variablePricesAndRenewables"] do %>
+      <%= for data <- @aemo_state["variablePrices"] do %>
           <% dt = date_time_to_str(data["period"]) %>
-          <tr class="<%= data["periodType"] %>"  phx-click="period" phx-value-period="<%= dt %>">
+          <tr class="<%= data["PERIODTYPE"] %>"  phx-click="period" phx-value-period="<%= dt %>">
             <% meter_data = data["prices"][@meter] %>
             <td><%= date_time_to_local(data["period"]) %></td>
-            <td><%= amber_price_type(data["periodType"]) %></td>
-            <td class="number"><%= Float.round(data["renewablesPercentage"], 1) %>%</td>
+            <td><%= aemo_price_type(data["PERIODTYPE"]) %></td>
             <%= if not is_nil(@meter) do %>
             <td class="expandable">
               <div class="number"><%= format_cents(meter_data.total_gst_price) %></div>

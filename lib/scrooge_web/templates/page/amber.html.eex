@@ -1,2 +1,0 @@
-<h1>Amber</h1>
-<%= live_render(@conn, ScroogeWeb.Live.Amber) %>

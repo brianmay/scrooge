@@ -1,19 +1,19 @@
-defmodule Scrooge.Amber do
+defmodule Scrooge.Aemo do
   @moduledoc false
 
   use GenServer
   require Logger
-  alias Scrooge.Amber.Prices
+  alias Scrooge.Aemo.Prices
 
   defmodule State do
     @type t :: %__MODULE__{
-            amber_state: map() | nil,
+            aemo_state: map() | nil,
             scenes: list(GenServer.server()),
             timer: pid(),
             next_time: DateTime.t()
           }
-    @enforce_keys [:amber_state, :scenes, :timer, :next_time]
-    defstruct [:amber_state, :scenes, :timer, :next_time]
+    @enforce_keys [:aemo_state, :scenes, :timer, :next_time]
+    defstruct [:aemo_state, :scenes, :timer, :next_time]
   end
 
   def start_link(_) do
@@ -21,7 +21,7 @@ defmodule Scrooge.Amber do
   end
 
   def poll() do
-    Logger.debug("Amber.Poller: Got poll request")
+    Logger.debug("Aemo.Poller: Got poll request")
     GenServer.call(__MODULE__, :poll, 30000)
   end
 
@@ -30,13 +30,13 @@ defmodule Scrooge.Amber do
     GenServer.cast(__MODULE__, {:register, pid})
   end
 
-  def get_amber_state() do
-    GenServer.call(__MODULE__, :get_amber_state)
+  def get_aemo_state() do
+    GenServer.call(__MODULE__, :get_aemo_state)
   end
 
   def init(_opts) do
     state =
-      %State{amber_state: nil, scenes: [], timer: nil, next_time: nil}
+      %State{aemo_state: nil, scenes: [], timer: nil, next_time: nil}
       |> set_timer()
 
     {:ok, state}
@@ -66,7 +66,7 @@ defmodule Scrooge.Amber do
     milliseconds = maximum(milliseconds, 60 * 1000)
     milliseconds = minimum(milliseconds, 0)
 
-    Logger.debug("Scrooge.Amber: Sleeping #{milliseconds} for #{inspect(next_time)}.")
+    Logger.debug("Scrooge.Aemo: Sleeping #{milliseconds} for #{inspect(next_time)}.")
     timer = Process.send_after(self(), :timer, milliseconds)
 
     %State{
@@ -88,8 +88,8 @@ defmodule Scrooge.Amber do
     {:reply, :ok, new_state}
   end
 
-  def handle_call(:get_amber_state, _from, state) do
-    {:reply, state.amber_state, state}
+  def handle_call(:get_aemo_state, _from, state) do
+    {:reply, state.aemo_state, state}
   end
 
   def handle_info(:timer, %State{next_time: next_time} = state) do
@@ -100,13 +100,13 @@ defmodule Scrooge.Amber do
     new_state =
       cond do
         Timex.before?(now, earliest_time) ->
-          Logger.debug("Amber.Poller: Timer received too early for #{next_time}.")
+          Logger.debug("Aemo.Poller: Timer received too early for #{next_time}.")
 
           state
           |> set_timer()
 
         Timex.before?(now, latest_time) ->
-          Logger.debug("Amber.Poller: Timer received on time for #{next_time}.")
+          Logger.debug("Aemo.Poller: Timer received on time for #{next_time}.")
 
           state
           |> handle_poll()
@@ -114,7 +114,7 @@ defmodule Scrooge.Amber do
           |> set_timer()
 
         true ->
-          Logger.debug("Amber.Poller: Timer received too late for #{next_time}.")
+          Logger.debug("Aemo.Poller: Timer received too late for #{next_time}.")
 
           state
           |> Map.put(:next_time, nil)
@@ -135,37 +135,39 @@ defmodule Scrooge.Amber do
       {"Content-Type", "application/json"}
     ]
 
-    body = Jason.encode!(%{"postcode" => "3787"})
+    body = Jason.encode!(%{"timeScale" => ["30MIN"]})
 
-    {:ok, response} =
-      Mojito.request(
-        method: :post,
-        url: "https://api.amberelectric.com.au/prices/listprices",
-        headers: headers,
-        body: body
-      )
+    Mojito.request(
+      method: :post,
+      url: "https://aemo.com.au/aemo/apps/api/report/5MIN",
+      headers: headers,
+      body: body
+    )
+    |> handle_response(state)
+  end
 
+  defp handle_response({:error, error}, state) do
+    Logger.error("Got error #{inspect(error)} talking to Aemo")
+    state
+  end
+
+  defp handle_response({:ok, response}, state) do
     case response.status_code do
       200 ->
         data = Jason.decode!(response.body)
-        data = data["data"]
+        data = data["5MIN"]
         data = add_prices(data)
 
         Enum.each(state.scenes, fn pid ->
-          GenServer.cast(pid, {:update_amber_state, data})
+          GenServer.cast(pid, {:update_aemo_state, data})
         end)
 
-        %State{state | amber_state: data}
+        %State{state | aemo_state: data}
 
       status ->
-        Logger.error("Got error #{status} talking to Amber")
+        Logger.error("Got error code #{status} talking to Aemo")
         state
     end
-  end
-
-  defp to_float(str) do
-    {value, ""} = Float.parse(str)
-    value
   end
 
   defp est_time(datetime_string) do
@@ -185,19 +187,20 @@ defmodule Scrooge.Amber do
   end
 
   defp add_prices(data) do
-    meter_prices =
-      Enum.map(data["staticPrices"], fn {meter, value} ->
-        total_fixed_price = to_float(value["totalfixedKWHPrice"])
-        loss_factor = to_float(value["lossFactor"])
-        {meter, total_fixed_price, loss_factor}
-      end)
+    meters = ["E1"]
 
     prices =
-      Enum.map(data["variablePricesAndRenewables"], fn entry ->
-        est_period = est_time(entry["period"])
+      data
+      |> Enum.filter(fn entry -> entry["REGION"] == "VIC1" end)
+      |> Enum.map(fn entry ->
+        est_period = est_time(entry["SETTLEMENTDATE"])
         utc_period = dt_to_utc_time(est_period)
+
+        # SETTLEMENTDATE is the end time for period, we want the start time
+        utc_period = DateTime.add(utc_period, -(30 * 60))
+
         local_period = dt_to_local_time(utc_period)
-        wholesale_price = to_float(entry["wholesaleKWHPrice"])
+        wholesale_price = entry["RRP"] / 1000 * 100
 
         carbon_neutral_offset = Prices.carbon_neutral_offset(local_period)
         environmental_certificate_cost = Prices.environmental_certificate_cost(local_period)
@@ -206,7 +209,7 @@ defmodule Scrooge.Amber do
         loss_factor = Prices.loss_factor(local_period)
 
         prices =
-          Enum.map(meter_prices, fn {meter, _total_fixed_price, _loss_factor} ->
+          Enum.map(meters, fn meter ->
             network_tarif = Prices.network_tarif(meter, local_period)
 
             total_fixed =
@@ -239,16 +242,14 @@ defmodule Scrooge.Amber do
           end)
           |> Enum.into(%{})
 
-        entry = Map.put(entry, "prices", prices)
-
-        renewables = to_float(entry["renewablesPercentage"]) * 100
-        %{entry | "period" => utc_period, "renewablesPercentage" => renewables}
+        entry
+        |> Map.put("prices", prices)
+        |> Map.put("period", utc_period)
       end)
 
     %{
-      data
-      | "variablePricesAndRenewables" => prices,
-        "currentNEMtime" => est_time(data["currentNEMtime"]) |> dt_to_utc_time()
+      "variablePrices" => prices,
+      "currentNEMtime" => DateTime.utc_now() |> dt_to_utc_time()
     }
   end
 end

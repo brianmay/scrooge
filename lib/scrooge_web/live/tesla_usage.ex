@@ -10,20 +10,20 @@ defmodule ScroogeWeb.Live.TeslaUsage do
   def mount(_params, _session, socket) do
     Scrooge.Tesla.register(self())
     tesla_state = Scrooge.Tesla.get_tesla_state()
-    amber_state = Scrooge.Amber.get_amber_state()
+    aemo_state = Scrooge.Aemo.get_aemo_state()
 
     socket =
       socket
       |> assign(:tesla_state, tesla_state)
-      |> assign(:amber_state, amber_state)
+      |> assign(:aemo_state, aemo_state)
       |> update_tesla_history()
 
     {:ok, socket}
   end
 
-  defp get_price_at_time(dt, amber_state) do
+  defp get_price_at_time(dt, aemo_state) do
     the_time =
-      amber_state["variablePricesAndRenewables"]
+      aemo_state["variablePrices"]
       |> Enum.filter(fn row -> DateTime.compare(row["period"], dt) == :eq end)
 
     case the_time do
@@ -56,7 +56,7 @@ defmodule ScroogeWeb.Live.TeslaUsage do
       |> Scrooge.TeNerves.all()
       |> Enum.map(fn entry ->
         dt = DateTime.from_naive!(entry.rounded_time, "Etc/UTC")
-        cents_per_kwh = get_price_at_time(dt, socket.assigns.amber_state)
+        cents_per_kwh = get_price_at_time(dt, socket.assigns.aemo_state)
 
         total_cents =
           case cents_per_kwh do
@@ -110,10 +110,10 @@ defmodule ScroogeWeb.Live.TeslaUsage do
     {:noreply, socket}
   end
 
-  def handle_cast({:update_amber_state, amber_state}, socket) do
+  def handle_cast({:update_aemo_state, aemo_state}, socket) do
     socket =
       socket
-      |> assign(:amber_state, amber_state)
+      |> assign(:aemo_state, aemo_state)
       |> update_tesla_history()
 
     {:noreply, socket}
