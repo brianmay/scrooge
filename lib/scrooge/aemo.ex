@@ -130,6 +130,10 @@ defmodule Scrooge.Aemo do
     {:noreply, state}
   end
 
+  def handle_info(_, state) do
+    {:noreply, state}
+  end
+
   defp handle_poll(state) do
     headers = [
       {"Content-Type", "application/json"}
