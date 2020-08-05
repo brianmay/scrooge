@@ -44,7 +44,11 @@ Hooks.Map = {
         let longitude = parseFloat(this.el.getAttribute("data-longitude"));
         let heading = parseFloat(this.el.getAttribute("data-heading"));
 
-        let map = L.map('mapid');
+        let map = L.map('mapid',
+            {
+                fullscreenControl: true,
+            }
+        );
 
         // create the tile layer with correct attribution
         let osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
