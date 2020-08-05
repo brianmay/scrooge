@@ -114,10 +114,50 @@
      data-latitude=<%= @tesla_state["history"]["latitude"] %>
      data-longitude=<%= @tesla_state["history"]["longitude"] %>
      data-heading=<%= @tesla_state["history"]["heading"] %>
+     data-door-df=<%= @tesla_state["vehicle"]["vehicle_state"]["df"] %>
+     data-door-dr=<%= @tesla_state["vehicle"]["vehicle_state"]["dr"] %>
+     data-door-pf=<%= @tesla_state["vehicle"]["vehicle_state"]["pf"] %>
+     data-door-pr=<%= @tesla_state["vehicle"]["vehicle_state"]["pr"] %>
+     data-door-ft=<%= @tesla_state["vehicle"]["vehicle_state"]["ft"] %>
+     data-door-rt=<%= @tesla_state["vehicle"]["vehicle_state"]["rt"] %>
 ></div>
 
 <div phx-update="ignore">
   <div id="mapid"></div>
+</div>
+
+<div phx-hook="MapDetails" style="display: none;">>
+    <div id="details">
+        <table class="table">
+          <tbody>
+
+            <tr>
+              <th>Last Update time</th>
+              <td><%= @tesla_state["history"]["date_time"] |> str_to_date_time() |> date_time_to_local() %></td>
+            </tr>
+
+            <tr>
+              <th>Speed / heading</th>
+              <td><%= format_speed(@tesla_state["history"]["speed"]) %> / <%= @tesla_state["history"]["heading"] %></td>
+            </tr>
+
+            <tr>
+              <th>Battery Charge Time</th>
+              <td><%= format_time_hours(@tesla_state["history"]["battery_charge_time"]) %></td>
+            </tr>
+
+            <tr>
+              <th>Battery Charge</th>
+              <td><%= @tesla_state["state"]["battery_level"] %></td>
+            </tr>
+
+            <tr>
+              <th>Distance From Home</th>
+              <td><%= format_distance(@tesla_state["state"]["distance_from_home"]) %></td>
+            </tr>
+          </tbody>
+        </table>
+    </div>
 </div>
 
 <% else %>
