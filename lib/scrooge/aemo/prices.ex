@@ -24,9 +24,9 @@ defmodule Scrooge.Aemo.Prices do
     # "Schedule of Tariffs"
     {peak, shoulder, off_peak} =
       cond do
-        Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> {14.8340, 11.5662, 4.3576}
-        Date.compare(l_dt, ~D[2019-01-01]) in [:eq, :gt] -> {13.9065, 10.7419, 3.9028}
-        Date.compare(l_dt, ~D[2018-01-01]) in [:eq, :gt] -> {13.1880, 10.1890, 3.0724}
+        Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> {0.0000, 11.5662, 4.3576}
+        Date.compare(l_dt, ~D[2019-01-01]) in [:eq, :gt] -> {0.0000, 10.7419, 3.9028}
+        Date.compare(l_dt, ~D[2018-01-01]) in [:eq, :gt] -> {0.0000, 10.1890, 3.0724}
       end
 
     day_of_week = Date.day_of_week(l_dt)
