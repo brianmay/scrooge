@@ -6,7 +6,7 @@
     "watch": "webpack --mode development --watch"
   },
   "dependencies": {
-    "autoprefixer": "^10.0.4",
+    "autoprefixer": "^10.1.0",
     "bootstrap": "^4.5.3",
     "deploy": "^1.0.3",
     "jquery": "3.5.1",
