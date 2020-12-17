@@ -1,4 +1,5 @@
 defmodule ScroogeWeb.Live.TeslaUsage do
+  @moduledoc "Get Tesla usage information"
   use Phoenix.LiveView
 
   import Ecto.Query

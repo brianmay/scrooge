@@ -1,5 +1,8 @@
 defmodule Scrooge.Accounts.CheckAdmin do
+  @moduledoc "Plugin to check if user is admin"
   import Plug.Conn
+
+  alias Scrooge.Accounts.Auth
 
   def init(_params) do
   end
@@ -7,12 +10,12 @@ defmodule Scrooge.Accounts.CheckAdmin do
   def call(conn, _params) do
     user = Guardian.Plug.current_resource(conn)
 
-    if not user.is_admin do
+    if user.is_admin do
       conn
-      |> Scrooge.Accounts.Auth.unauthorized_response()
-      |> halt()
     else
       conn
+      |> Auth.unauthorized_response()
+      |> halt()
     end
   end
 end

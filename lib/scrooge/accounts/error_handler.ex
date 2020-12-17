@@ -1,4 +1,6 @@
 defmodule Scrooge.Accounts.ErrorHandler do
+  @moduledoc "Error handler"
+
   import Plug.Conn
   use ScroogeWeb, :controller
 

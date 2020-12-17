@@ -1,4 +1,6 @@
 defmodule Scrooge.Auth do
+  @moduledoc "Authentication support"
+
   def current_user(conn) do
     Guardian.Plug.current_resource(conn)
   end

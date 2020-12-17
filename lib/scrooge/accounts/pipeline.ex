@@ -1,4 +1,6 @@
 defmodule Scrooge.Accounts.Pipeline do
+  @moduledoc "Guardian authentication pipline"
+
   use Guardian.Plug.Pipeline,
     otp_app: :scrooge,
     error_handler: Scrooge.Accounts.ErrorHandler,

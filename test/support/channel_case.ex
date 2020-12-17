@@ -14,6 +14,7 @@ defmodule ScroogeWeb.ChannelCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do
@@ -26,10 +27,10 @@ defmodule ScroogeWeb.ChannelCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(Scrooge.Repo)
+    :ok = Sandbox.checkout(Scrooge.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(Scrooge.Repo, {:shared, self()})
+      Sandbox.mode(Scrooge.Repo, {:shared, self()})
     end
 
     :ok

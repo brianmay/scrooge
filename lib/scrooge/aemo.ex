@@ -1,11 +1,12 @@
 defmodule Scrooge.Aemo do
-  @moduledoc false
+  @moduledoc "Server to keep track of Aemo pricing information"
 
   use GenServer
   require Logger
   alias Scrooge.Aemo.Prices
 
   defmodule State do
+    @moduledoc false
     @type t :: %__MODULE__{
             aemo_state: map() | nil,
             scenes: list(GenServer.server()),
@@ -20,9 +21,9 @@ defmodule Scrooge.Aemo do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
-  def poll() do
+  def poll do
     Logger.debug("Aemo.Poller: Got poll request")
-    GenServer.call(__MODULE__, :poll, 30000)
+    GenServer.call(__MODULE__, :poll, 30_000)
   end
 
   @spec register(GenServer.server()) :: nil
@@ -30,7 +31,7 @@ defmodule Scrooge.Aemo do
     GenServer.cast(__MODULE__, {:register, pid})
   end
 
-  def get_aemo_state() do
+  def get_aemo_state do
     GenServer.call(__MODULE__, :get_aemo_state)
   end
 

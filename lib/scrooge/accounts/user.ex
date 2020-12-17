@@ -1,4 +1,5 @@
 defmodule Scrooge.Accounts.User do
+  @moduledoc "A user that can login to the website"
   use Ecto.Schema
   import Ecto.Changeset
 

@@ -1,4 +1,5 @@
 defmodule ScroogeWeb.SessionControllerTest do
+  @moduledoc false
   use ScroogeWeb.ConnCase
 
   alias Scrooge.Accounts

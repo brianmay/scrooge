@@ -1,4 +1,5 @@
 defmodule ScroogeWeb.Live.Tesla do
+  @moduledoc "Live view for Tesla"
   use Phoenix.LiveView
 
   def render(assigns) do

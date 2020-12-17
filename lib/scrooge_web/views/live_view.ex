@@ -1,7 +1,9 @@
 defmodule ScroogeWeb.LiveView do
   use ScroogeWeb, :view
 
-  @timezone Application.get_env(:scrooge, :timezone)
+  alias Phoenix.HTML.Link
+
+  defp timezone, do: Application.get_env(:scrooge, :timezone)
 
   defp str_to_date_time(nil), do: nil
 
@@ -18,7 +20,7 @@ defmodule ScroogeWeb.LiveView do
 
   defp date_time_to_local(dt) do
     dt
-    |> DateTime.shift_zone!(@timezone)
+    |> DateTime.shift_zone!(timezone())
     |> Timex.format!("%F %T", :strftime)
   end
 
@@ -72,7 +74,7 @@ defmodule ScroogeWeb.LiveView do
   defp location_link(latitude, longitude) do
     text = "#{latitude},#{longitude}"
 
-    Phoenix.HTML.Link.link(text, to: "https://www.google.com/maps/search/#{latitude},#{longitude}")
+    Link.link(text, to: "https://www.google.com/maps/search/#{latitude},#{longitude}")
   end
 
   defp format_cents(cents) do

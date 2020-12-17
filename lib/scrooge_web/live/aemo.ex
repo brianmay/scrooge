@@ -1,4 +1,5 @@
 defmodule ScroogeWeb.Live.Aemo do
+  @moduledoc "Get AEMO price information"
   use Phoenix.LiveView
 
   def render(assigns) do

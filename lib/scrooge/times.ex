@@ -1,4 +1,6 @@
 defmodule Scrooge.Times do
+  @moduledoc "Functions for time calculations"
+
   def round_time(date_time, interval, offset) do
     seconds = Timex.to_unix(date_time)
     units = div(seconds, interval) + offset

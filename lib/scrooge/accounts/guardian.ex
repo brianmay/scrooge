@@ -1,4 +1,5 @@
 defmodule Scrooge.Accounts.Guardian do
+  @moduledoc "Guardian support functions"
   use Guardian, otp_app: :scrooge
 
   alias Scrooge.Accounts

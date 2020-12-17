@@ -1,4 +1,5 @@
 defmodule ScroogeWeb.Forms do
+  @moduledoc "Form helpers"
   use Phoenix.HTML
 
   def field_class(form, field, class) do

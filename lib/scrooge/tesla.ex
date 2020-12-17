@@ -1,10 +1,11 @@
 defmodule Scrooge.Tesla do
-  @moduledoc false
+  @moduledoc "A server that keeps track of the latest tesla information"
 
   use GenServer
   require Logger
 
   defmodule State do
+    @moduledoc false
     @type t :: %__MODULE__{
             tesla_state: map() | nil,
             scenes: list(GenServer.server())
@@ -33,7 +34,7 @@ defmodule Scrooge.Tesla do
     GenServer.cast(__MODULE__, {:update_tesla_state, tesla_state})
   end
 
-  def get_tesla_state() do
+  def get_tesla_state do
     GenServer.call(__MODULE__, :get_tesla_state)
   end
 

@@ -1,7 +1,7 @@
 defmodule ScroogeWeb.SessionController do
   use ScroogeWeb, :controller
 
-  alias Scrooge.{Accounts, Accounts.User, Accounts.Guardian}
+  alias Scrooge.{Accounts, Accounts.Guardian, Accounts.User}
   alias ScroogeWeb.Router.Helpers, as: Routes
 
   def new(conn, _) do
