@@ -48,7 +48,9 @@ defmodule Scrooge.MixProject do
       {:tortoise, "~> 0.9.2"},
       {:phoenix_live_view, "~> 0.14.0"},
       {:timex, "~> 3.5"},
-      {:mojito, "~> 0.7.1"}
+      {:mojito, "~> 0.7.1"},
+      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 
