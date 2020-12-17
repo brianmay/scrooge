@@ -34,8 +34,8 @@ jobs:
         otp: [22.2.8]
 
     env:
-      DATABASE_URL_TEST: postgresql://postgres:postgres@localhost/test?sslmode=disable
-      TENERVES_URL_TEST: postgresql://postgres:postgres@localhost/test?sslmode=disable
+      DATABASE_URL_TEST: postgresql://postgres:postgres@postgres/test?sslmode=disable
+      TENERVES_URL_TEST: postgresql://postgres:postgres@postgres/test?sslmode=disable
       MIX_ENV: test
 
     steps:
