@@ -4,9 +4,6 @@ on:
   - push
   - pull_request
 
-env:
-  MIX_ENV: test
-
 jobs:
   test:
 
@@ -39,6 +36,7 @@ jobs:
     env:
       DATABASE_URL_TEST: postgresql://postgres:postgres@localhost/test?sslmode=disable
       TENERVES_URL_TEST: postgresql://postgres:postgres@localhost/test?sslmode=disable
+      MIX_ENV: test
 
     steps:
     - uses: actions/checkout@v2
@@ -109,7 +107,7 @@ jobs:
         mkdir -p priv/plts
         mix dialyzer --plt
     - name: Run dialyzer
-      run: mix dialyzer --no-check --halt-exit-status
+      run: mix dialyzer --no-check
 
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
