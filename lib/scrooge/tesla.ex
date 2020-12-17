@@ -25,7 +25,7 @@ defmodule Scrooge.Tesla do
     %{}
   end
 
-  @spec register(GenServer.server()) :: nil
+  @spec register(GenServer.server()) :: :ok
   def register(pid) do
     GenServer.cast(__MODULE__, {:register, pid})
   end

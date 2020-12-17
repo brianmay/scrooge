@@ -26,7 +26,7 @@ defmodule Scrooge.Aemo do
     GenServer.call(__MODULE__, :poll, 30_000)
   end
 
-  @spec register(GenServer.server()) :: nil
+  @spec register(GenServer.server()) :: :ok
   def register(pid) do
     GenServer.cast(__MODULE__, {:register, pid})
   end
