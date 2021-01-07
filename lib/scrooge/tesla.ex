@@ -76,14 +76,14 @@ defmodule Scrooge.Tesla do
 
   defp robotica_test(old_value, new_value, test, new_msg, old_msg) do
     cond do
-        test.(new_value) ->
-            Scrooge.Robotica.publish_message(new_msg)
+      test.(new_value) ->
+        Scrooge.Robotica.publish_message(new_msg)
 
-        test.(old_value) ->
-            Scrooge.Robotica.publish_message(old_msg)
+      test.(old_value) ->
+        Scrooge.Robotica.publish_message(old_msg)
 
-        true ->
-            :ok
+      true ->
+        :ok
     end
   end
 
@@ -91,38 +91,38 @@ defmodule Scrooge.Tesla do
     case key do
       :geofence ->
         robotica_test(
-            old_value,
-            new_value,
-            fn value -> value != nil end,
-            "The tesla has arrived at #{new_value}.",
-            "The tesla has departed from #{old_value}."
+          old_value,
+          new_value,
+          fn value -> value != nil end,
+          "The tesla has arrived at #{new_value}.",
+          "The tesla has departed from #{old_value}."
         )
 
       :plugged_in ->
         robotica_test(
-            old_value,
-            new_value,
-            fn value -> value == true end,
-            "The tesla has been plugged in.",
-            "The tesla has been disconnected."
+          old_value,
+          new_value,
+          fn value -> value == true end,
+          "The tesla has been plugged in.",
+          "The tesla has been disconnected."
         )
 
       :locked ->
         robotica_test(
-            old_value,
-            new_value,
-            fn value -> value == true end,
-            "The tesla has been locked.",
-            "The tesla has been unlocked."
+          old_value,
+          new_value,
+          fn value -> value == true end,
+          "The tesla has been locked.",
+          "The tesla has been unlocked."
         )
 
       :is_user_present ->
         robotica_test(
-            old_value,
-            new_value,
-            fn value -> value == true end,
-            "The tesla driver has returned.",
-            "The tesla driver has disappeared."
+          old_value,
+          new_value,
+          fn value -> value == true end,
+          "The tesla driver has returned.",
+          "The tesla driver has disappeared."
         )
 
       _ ->
