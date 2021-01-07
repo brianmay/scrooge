@@ -87,12 +87,14 @@ defmodule Scrooge.MqttHandler do
   defp decode(["heading"], body), do: {:heading, integer(body)}
   defp decode(["speed"], body), do: {:speed, integer(body)}
   defp decode(["since"], body), do: {:since, date_time(body)}
-  defp decode(["geofence"], body), do: {:geofence, string(body)}
   defp decode(["doors_open"], body), do: {:doors_open, boolean(body)}
   defp decode(["trunk_open"], body), do: {:trunk_open, boolean(body)}
   defp decode(["frunk_open"], body), do: {:frunk_open, boolean(body)}
   defp decode(["windows_open"], body), do: {:windows_open, boolean(body)}
   defp decode(["plugged_in"], body), do: {:plugged_in, boolean(body)}
+  defp decode(["locked"], body), do: {:locked, boolean(body)}
+  defp decode(["is_user_present"], body), do: {:is_user_present, boolean(body)}
+  defp decode(["geofence"], body), do: {:geofence, string(body)}
   defp decode(_, _), do: nil
 
   def handle_message(["teslamate", "cars", "1" | topic], publish, state) do

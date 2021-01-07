@@ -19,6 +19,8 @@ defmodule Scrooge.Tesla do
             frunk_open: boolean() | nil,
             windows_open: boolean() | nil,
             plugged_in: boolean() | nil,
+            locked: boolean() | nil,
+            is_user_present: boolean() | nil,
             geofence: String.t() | nil
           }
     defstruct [
@@ -32,6 +34,8 @@ defmodule Scrooge.Tesla do
       :frunk_open,
       :windows_open,
       :plugged_in,
+      :locked,
+      :is_user_present,
       :geofence
     ]
   end
@@ -70,32 +74,59 @@ defmodule Scrooge.Tesla do
     GenServer.call(__MODULE__, :get_tesla_state)
   end
 
-  defp robotica(key, old_value, new_value, _new_state) do
+  defp robotica_test(old_value, new_value, test, new_msg, old_msg) do
+    cond do
+        test.(new_value) ->
+            Scrooge.Robotica.publish_message(new_msg)
+
+        test.(old_value) ->
+            Scrooge.Robotica.publish_message(old_msg)
+
+        true ->
+            :ok
+    end
+  end
+
+  defp robotica(key, old_value, new_value) do
     case key do
       :geofence ->
-        if old_value != new_value do
-          cond do
-            not is_nil(new_value) ->
-              Scrooge.Robotica.publish_message("The tesla has arrived at #{new_value}.")
-
-            not is_nil(old_value) ->
-              Scrooge.Robotica.publish_message("The tesla has departed from #{old_value}.")
-          end
-        end
+        robotica_test(
+            old_value,
+            new_value,
+            fn value -> value != nil end,
+            "The tesla has arrived at #{new_value}.",
+            "The tesla has departed from #{old_value}."
+        )
 
       :plugged_in ->
-        if old_value != new_value do
-          cond do
-            new_value == true ->
-              Scrooge.Robotica.publish_message("The tesla has been plugged in.")
+        robotica_test(
+            old_value,
+            new_value,
+            fn value -> value == true end,
+            "The tesla has been plugged in.",
+            "The tesla has been disconnected."
+        )
 
-            old_value == true ->
-              Scrooge.Robotica.publish_message("The tesla has been disconnected.")
-          end
-        end
+      :locked ->
+        robotica_test(
+            old_value,
+            new_value,
+            fn value -> value == true end,
+            "The tesla has been locked.",
+            "The tesla has been unlocked."
+        )
+
+      :is_user_present ->
+        robotica_test(
+            old_value,
+            new_value,
+            fn value -> value == true end,
+            "The tesla driver has returned.",
+            "The tesla driver has disappeared."
+        )
 
       _ ->
-        nil
+        :ok
     end
   end
 
@@ -105,8 +136,8 @@ defmodule Scrooge.Tesla do
 
     new_state = Map.put(state.tesla_state, key, new_value)
 
-    if robotica() and not is_nil(old_value) do
-      robotica(key, old_value, new_value, new_state)
+    if robotica() and old_value != new_value do
+      robotica(key, old_value, new_value)
     end
 
     Enum.each(state.scenes, fn pid ->
