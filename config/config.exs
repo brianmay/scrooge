@@ -18,7 +18,8 @@ config :scrooge,
   mqtt_password: System.get_env("MQTT_PASSWORD"),
   build_date: System.get_env("BUILD_DATE"),
   vcs_ref: System.get_env("VCS_REF"),
-  timezone: "Australia/Melbourne"
+  timezone: "Australia/Melbourne",
+  robotica: true
 
 config :scrooge, Scrooge.Repo,
   url: System.get_env("DATABASE_URL"),

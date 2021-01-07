@@ -70,22 +70,29 @@ defmodule Scrooge.MqttHandler do
     end
   end
 
+  defp string(value) do
+    case value do
+      "" -> nil
+      _ -> value
+    end
+  end
+
   defp date_time(str) do
     {:ok, dt, 0} = DateTime.from_iso8601(str)
     dt
   end
 
-  defp decode(["latitude"], message), do: {:latitude, float(message)}
-  defp decode(["longitude"], message), do: {:longitude, float(message)}
-  defp decode(["heading"], message), do: {:heading, integer(message)}
-  defp decode(["speed"], message), do: {:speed, integer(message)}
-  defp decode(["since"], message), do: {:since, date_time(message)}
-  defp decode(["geofence"], message), do: {:geofence, message}
-  defp decode(["doors_open"], message), do: {:doors_open, boolean(message)}
-  defp decode(["trunk_open"], message), do: {:trunk_open, boolean(message)}
-  defp decode(["frunk_open"], message), do: {:frunk_open, boolean(message)}
-  defp decode(["windows_open"], message), do: {:windows_open, boolean(message)}
-  defp decode(["plugged_in"], message), do: {:plugged_in, boolean(message)}
+  defp decode(["latitude"], body), do: {:latitude, float(body)}
+  defp decode(["longitude"], body), do: {:longitude, float(body)}
+  defp decode(["heading"], body), do: {:heading, integer(body)}
+  defp decode(["speed"], body), do: {:speed, integer(body)}
+  defp decode(["since"], body), do: {:since, date_time(body)}
+  defp decode(["geofence"], body), do: {:geofence, string(body)}
+  defp decode(["doors_open"], body), do: {:doors_open, boolean(body)}
+  defp decode(["trunk_open"], body), do: {:trunk_open, boolean(body)}
+  defp decode(["frunk_open"], body), do: {:frunk_open, boolean(body)}
+  defp decode(["windows_open"], body), do: {:windows_open, boolean(body)}
+  defp decode(["plugged_in"], body), do: {:plugged_in, boolean(body)}
   defp decode(_, _), do: nil
 
   def handle_message(["teslamate", "cars", "1" | topic], publish, state) do

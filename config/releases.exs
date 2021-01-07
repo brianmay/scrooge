@@ -7,7 +7,8 @@ config :scrooge,
   mqtt_port: String.to_integer(System.get_env("MQTT_PORT") || "8883"),
   ca_cert_file: System.get_env("MQTT_CA_CERT_FILE"),
   mqtt_user_name: System.get_env("MQTT_USER_NAME"),
-  mqtt_password: System.get_env("MQTT_PASSWORD")
+  mqtt_password: System.get_env("MQTT_PASSWORD"),
+  robotica: System.get_env("ROBOTICA") != nil
 
 config :scrooge, Scrooge.Repo,
   url: System.get_env("DATABASE_URL"),

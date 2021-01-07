@@ -4,6 +4,8 @@ defmodule Scrooge.Tesla do
   use GenServer
   require Logger
 
+  defp robotica, do: Application.get_env(:scrooge, :robotica)
+
   defmodule TeslaState do
     @moduledoc false
     @type t :: %__MODULE__{
@@ -68,14 +70,50 @@ defmodule Scrooge.Tesla do
     GenServer.call(__MODULE__, :get_tesla_state)
   end
 
-  def handle_cast({:update_tesla_state, key, value}, state) do
-    tesla_state = Map.put(state.tesla_state, key, value)
+  defp robotica(key, old_value, new_value, _new_state) do
+    case key do
+      :geofence ->
+        if old_value != new_value do
+          cond do
+            not is_nil(new_value) ->
+              Scrooge.Robotica.publish_message("The tesla has arrived at #{new_value}.")
+
+            not is_nil(old_value) ->
+              Scrooge.Robotica.publish_message("The tesla has departed from #{old_value}.")
+          end
+        end
+
+      :plugged_in ->
+        if old_value != new_value do
+          cond do
+            new_value == true ->
+              Scrooge.Robotica.publish_message("The tesla has been plugged in.")
+
+            old_value == true ->
+              Scrooge.Robotica.publish_message("The tesla has been disconnected.")
+          end
+        end
+
+      _ ->
+        nil
+    end
+  end
+
+  def handle_cast({:update_tesla_state, key, new_value}, state) do
+    old_state = state.tesla_state
+    old_value = Map.get(old_state, key)
+
+    new_state = Map.put(state.tesla_state, key, new_value)
+
+    if robotica() and not is_nil(old_value) do
+      robotica(key, old_value, new_value, new_state)
+    end
 
     Enum.each(state.scenes, fn pid ->
-      GenServer.cast(pid, {:update_tesla_state, tesla_state})
+      GenServer.cast(pid, {:update_tesla_state, new_state})
     end)
 
-    {:noreply, %{state | tesla_state: tesla_state}}
+    {:noreply, %{state | tesla_state: new_state}}
   end
 
   def handle_cast({:register, pid}, state) do

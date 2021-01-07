@@ -42,29 +42,6 @@ defmodule ScroogeWeb.LiveView do
     "#{km}.#{pad(m, 3)}km"
   end
 
-  @spec format_time_minutes(integer() | nil) :: String.t() | nil
-  defp format_time_minutes(nil), do: nil
-
-  defp format_time_minutes(value) do
-    {negative_sign, signed_value} =
-      if value < 0 do
-        {"-", -value}
-      else
-        {"", value}
-      end
-
-    signed_value = round(signed_value)
-    {hours, minutes} = div_rem(signed_value, 60)
-    "#{negative_sign}#{pad(hours, 2)}:#{pad(minutes, 2)}"
-  end
-
-  @spec format_time_hours(integer() | nil) :: String.t() | nil
-  defp format_time_hours(nil), do: nil
-
-  defp format_time_hours(value) do
-    format_time_minutes(value * 60)
-  end
-
   defp format_speed(nil), do: "nil"
   defp format_speed(value), do: "#{round(value)}km/h"
 

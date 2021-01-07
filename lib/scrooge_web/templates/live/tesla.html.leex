@@ -12,14 +12,6 @@
 <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
 
 <%= inspect @tesla_state %>
-<%= format_time_minutes(nil) %>
-<%= format_time_minutes(1) %>
-<%= format_time_minutes(0) %>
-<%= format_time_minutes(-1) %>
-<%= format_time_hours(nil) %>
-<%= format_time_hours(1) %>
-<%= format_time_hours(0) %>
-<%= format_time_hours(-1) %>
 
 <%= if map_size(@tesla_state) > 0 do %>
 <table class="table">
@@ -44,15 +36,6 @@
     <tr>
       <th>Speed / heading</th>
       <td><%= format_speed(@tesla_state.speed) %> / <%= @tesla_state.heading %></td>
-    </tr>
-    <% end %>
-
-    <%= if valid(@tesla_state.doors_open) do %>
-    <tr>
-      <th>Doors</th>
-      <td>
-        <%= door_state(@tesla_state.doors_open) %>
-      </td>
     </tr>
     <% end %>
 
