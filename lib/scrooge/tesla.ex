@@ -4,13 +4,43 @@ defmodule Scrooge.Tesla do
   use GenServer
   require Logger
 
+  defmodule TeslaState do
+    @moduledoc false
+    @type t :: %__MODULE__{
+            latitude: float() | nil,
+            longitude: float() | nil,
+            heading: integer() | nil,
+            speed: integer() | nil,
+            since: DateTime.t() | nil,
+            doors_open: boolean() | nil,
+            trunk_open: boolean() | nil,
+            frunk_open: boolean() | nil,
+            windows_open: boolean() | nil,
+            plugged_in: boolean() | nil,
+            geofence: String.t() | nil
+          }
+    defstruct [
+      :latitude,
+      :longitude,
+      :heading,
+      :speed,
+      :since,
+      :doors_open,
+      :trunk_open,
+      :frunk_open,
+      :windows_open,
+      :plugged_in,
+      :geofence
+    ]
+  end
+
   defmodule State do
     @moduledoc false
     @type t :: %__MODULE__{
-            tesla_state: map() | nil,
+            tesla_state: TeslaState.t(),
             scenes: list(GenServer.server())
           }
-    defstruct tesla_state: nil, scenes: []
+    defstruct tesla_state: %TeslaState{}, scenes: []
   end
 
   def start_link(_) do
@@ -30,15 +60,17 @@ defmodule Scrooge.Tesla do
     GenServer.cast(__MODULE__, {:register, pid})
   end
 
-  def update_tesla_state(tesla_state) do
-    GenServer.cast(__MODULE__, {:update_tesla_state, tesla_state})
+  def update_tesla_state(key, value) do
+    GenServer.cast(__MODULE__, {:update_tesla_state, key, value})
   end
 
   def get_tesla_state do
     GenServer.call(__MODULE__, :get_tesla_state)
   end
 
-  def handle_cast({:update_tesla_state, tesla_state}, state) do
+  def handle_cast({:update_tesla_state, key, value}, state) do
+    tesla_state = Map.put(state.tesla_state, key, value)
+
     Enum.each(state.scenes, fn pid ->
       GenServer.cast(pid, {:update_tesla_state, tesla_state})
     end)

@@ -3,14 +3,9 @@ defmodule ScroogeWeb.LiveView do
 
   alias Phoenix.HTML.Link
 
+  defp valid(value), do: not is_nil(value)
+
   defp timezone, do: Application.get_env(:scrooge, :timezone)
-
-  defp str_to_date_time(nil), do: nil
-
-  defp str_to_date_time(str) do
-    {:ok, dt, 0} = DateTime.from_iso8601(str)
-    dt
-  end
 
   defp date_time_to_str(dt) do
     DateTime.to_iso8601(dt)
@@ -26,8 +21,8 @@ defmodule ScroogeWeb.LiveView do
 
   defp door_state(value) do
     case value do
-      0 -> "Closed"
-      x -> "Open #{x}"
+      true -> "Opened"
+      false -> "Closed"
     end
   end
 
@@ -47,21 +42,23 @@ defmodule ScroogeWeb.LiveView do
     "#{km}.#{pad(m, 3)}km"
   end
 
+  @spec format_time_minutes(integer() | nil) :: String.t() | nil
   defp format_time_minutes(nil), do: nil
 
   defp format_time_minutes(value) do
-    {negative_sign, value} =
+    {negative_sign, signed_value} =
       if value < 0 do
         {"-", -value}
       else
         {"", value}
       end
 
-    value = round(value)
-    {hours, minutes} = div_rem(value, 60)
+    signed_value = round(signed_value)
+    {hours, minutes} = div_rem(signed_value, 60)
     "#{negative_sign}#{pad(hours, 2)}:#{pad(minutes, 2)}"
   end
 
+  @spec format_time_hours(integer() | nil) :: String.t() | nil
   defp format_time_hours(nil), do: nil
 
   defp format_time_hours(value) do

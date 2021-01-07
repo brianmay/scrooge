@@ -11,116 +11,119 @@
 <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
 <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
 
-<%= if not is_nil(@tesla_state) do %>
+<%= inspect @tesla_state %>
+<%= format_time_minutes(nil) %>
+<%= format_time_minutes(1) %>
+<%= format_time_minutes(0) %>
+<%= format_time_minutes(-1) %>
+<%= format_time_hours(nil) %>
+<%= format_time_hours(1) %>
+<%= format_time_hours(0) %>
+<%= format_time_hours(-1) %>
+
+<%= if map_size(@tesla_state) > 0 do %>
 <table class="table">
   <tbody>
-
+    <%= if valid(@tesla_state.since) do %>
     <tr>
       <th>Last Update time</th>
-      <td><%= @tesla_state["history"]["date_time"] |> str_to_date_time() |> date_time_to_local() %></td>
+      <td><%= @tesla_state.since |> date_time_to_local() %></td>
     </tr>
+    <% end %>
 
+    <%= if valid(@tesla_state.latitude) and valid(@tesla_state.longitude) do %>
     <tr>
       <th>Location</th>
       <td>
-        <%= location_link(@tesla_state["history"]["latitude"], @tesla_state["history"]["longitude"]) %>
+        <%= location_link(@tesla_state.latitude, @tesla_state.longitude) %>
       </td>
     </tr>
+    <% end %>
 
+    <%= if valid(@tesla_state.speed) and valid(@tesla_state.heading)do %>
     <tr>
       <th>Speed / heading</th>
-      <td><%= format_speed(@tesla_state["history"]["speed"]) %> / <%= @tesla_state["history"]["heading"] %></td>
+      <td><%= format_speed(@tesla_state.speed) %> / <%= @tesla_state.heading %></td>
     </tr>
+    <% end %>
 
+    <%= if valid(@tesla_state.doors_open) do %>
     <tr>
-      <th>Battery Charge Time</th>
-      <td><%= format_time_hours(@tesla_state["history"]["battery_charge_time"]) %></td>
+      <th>Doors</th>
+      <td>
+        <%= door_state(@tesla_state.doors_open) %>
+      </td>
     </tr>
+    <% end %>
 
+    <%= if valid(@tesla_state.doors_open) do %>
     <tr>
-      <th>Outside Temperature</th>
-      <td><%= @tesla_state["history"]["outside_temp"] %></td>
+      <th>Doors</th>
+      <td>
+        <%= door_state(@tesla_state.doors_open) %>
+      </td>
     </tr>
+    <% end %>
 
+    <%= if valid(@tesla_state.trunk_open) do %>
     <tr>
-      <th>Inside Temperature</th>
-      <td><%= @tesla_state["history"]["inside_temp"] %></td>
+      <th>Trunk</th>
+      <td>
+        <%= door_state(@tesla_state.trunk_open) %>
+      </td>
     </tr>
+    <% end %>
 
+    <%= if valid(@tesla_state.frunk_open) do %>
     <tr>
-      <th>Battery Charge</th>
-      <td><%= @tesla_state["state"]["battery_level"] %></td>
+      <th>Frunk</th>
+      <td>
+        <%= door_state(@tesla_state.frunk_open) %>
+      </td>
     </tr>
+    <% end %>
 
+    <%= if valid(@tesla_state.windows_open) do %>
     <tr>
-      <th>Charger Plugged In</th>
-      <td><%= @tesla_state["state"]["charger_plugged_in"] %></td>
+      <th>Windows</th>
+      <td>
+        <%= door_state(@tesla_state.windows_open) %>
+      </td>
     </tr>
+    <% end %>
 
+    <%= if valid(@tesla_state.plugged_in) do %>
     <tr>
-      <th>Distance From Home</th>
-      <td><%= format_distance(@tesla_state["state"]["distance_from_home"]) %></td>
+      <th>Plugged In</th>
+      <td>
+        <%= @tesla_state.plugged_in %>
+      </td>
     </tr>
+    <% end %>
 
+    <%= if valid(@tesla_state.geofence) do %>
     <tr>
-      <th>Unlocked time</th>
-      <td><%= @tesla_state["state"]["unlocked_time"] |> str_to_date_time() |> date_time_to_local() %></td>
+      <th>Geofence</th>
+      <td>
+        <%= @tesla_state.geofence %>
+      </td>
     </tr>
-
-    <tr>
-      <th>Unlocked Delta</th>
-      <td><%= format_time_minutes(@tesla_state["state"]["unlocked_delta"]) %></td>
-    </tr>
-
-    <tr>
-      <th>Warning</th>
-      <td><%= @tesla_state["state"]["next_warning_time"] |> str_to_date_time() |> date_time_to_local() %></td>
-    </tr>
-
-    <tr>
-      <th>Driver's Front Door</th>
-      <td><%= door_state(@tesla_state["vehicle"]["vehicle_state"]["df"]) %></td>
-    </tr>
-
-    <tr>
-      <th>Driver's Rear Door</th>
-      <td><%= door_state(@tesla_state["vehicle"]["vehicle_state"]["dr"]) %></td>
-    </tr>
-
-    <tr>
-      <th>Passenger's Front Door</th>
-      <td><%= door_state(@tesla_state["vehicle"]["vehicle_state"]["pf"]) %></td>
-    </tr>
-
-    <tr>
-      <th>Passenger's Rear Door</th>
-      <td><%= door_state(@tesla_state["vehicle"]["vehicle_state"]["pr"]) %></td>
-    </tr>
-
-    <tr>
-      <th>Front Trunk</th>
-      <td><%= door_state(@tesla_state["vehicle"]["vehicle_state"]["ft"]) %></td>
-    </tr>
-
-    <tr>
-      <th>Rear Trunk</th>
-      <td><%= door_state(@tesla_state["vehicle"]["vehicle_state"]["rt"]) %></td>
-    </tr>
-
-  </tbody>
+    <% end %>
+  <tbody>
 </table>
 
+<%= if valid(@tesla_state.latitude) and valid(@tesla_state.longitude) and valid(@tesla_state.heading) do %>
 <div phx-hook="Map"
-     data-latitude=<%= @tesla_state["history"]["latitude"] %>
-     data-longitude=<%= @tesla_state["history"]["longitude"] %>
-     data-heading=<%= @tesla_state["history"]["heading"] %>
-     data-door-df=<%= @tesla_state["vehicle"]["vehicle_state"]["df"] %>
-     data-door-dr=<%= @tesla_state["vehicle"]["vehicle_state"]["dr"] %>
-     data-door-pf=<%= @tesla_state["vehicle"]["vehicle_state"]["pf"] %>
-     data-door-pr=<%= @tesla_state["vehicle"]["vehicle_state"]["pr"] %>
-     data-door-ft=<%= @tesla_state["vehicle"]["vehicle_state"]["ft"] %>
-     data-door-rt=<%= @tesla_state["vehicle"]["vehicle_state"]["rt"] %>
-></div>
+     data-latitude=<%= @tesla_state.latitude %>
+     data-longitude=<%= @tesla_state.longitude %>
+     data-heading=<%= @tesla_state.heading %>
+     data-door-df=false
+     data-door-dr=false
+     data-door-pf=false
+     data-door-pr=false
+     data-door-ft=false
+     data-door-rt=false
+</div>
 
 <div phx-update="ignore">
   <div id="mapid"></div>
@@ -130,35 +133,21 @@
     <div id="details">
         <table class="table">
           <tbody>
-
             <tr>
               <th>Last Update time</th>
-              <td><%= @tesla_state["history"]["date_time"] |> str_to_date_time() |> date_time_to_local() %></td>
+              <td><%= @tesla_state.since |> date_time_to_local() %></td>
             </tr>
 
             <tr>
               <th>Speed / heading</th>
-              <td><%= format_speed(@tesla_state["history"]["speed"]) %> / <%= @tesla_state["history"]["heading"] %></td>
+              <td><%= format_speed(@tesla_state.speed) %> / <%= @tesla_state.heading %></td>
             </tr>
 
-            <tr>
-              <th>Battery Charge Time</th>
-              <td><%= format_time_hours(@tesla_state["history"]["battery_charge_time"]) %></td>
-            </tr>
-
-            <tr>
-              <th>Battery Charge</th>
-              <td><%= @tesla_state["state"]["battery_level"] %></td>
-            </tr>
-
-            <tr>
-              <th>Distance From Home</th>
-              <td><%= format_distance(@tesla_state["state"]["distance_from_home"]) %></td>
-            </tr>
           </tbody>
         </table>
     </div>
 </div>
+<% end %>
 
 <% else %>
 No state date found.

@@ -40,7 +40,7 @@ defmodule Scrooge.Application do
          host: mqtt_host, port: mqtt_port, cacertfile: ca_cert_file
        },
        subscriptions: [
-         {"tesla", 0}
+         {"teslamate/cars/1/#", 0}
        ]}
     ]
 
