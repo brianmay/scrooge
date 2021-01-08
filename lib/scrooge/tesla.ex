@@ -21,7 +21,7 @@ defmodule Scrooge.Tesla do
             plugged_in: boolean() | nil,
             locked: boolean() | nil,
             is_user_present: boolean() | nil,
-            geofence: String.t() | nil
+            geofence: String.t() | nil | :none
           }
     defstruct [
       :latitude,
@@ -110,9 +110,12 @@ defmodule Scrooge.Tesla do
     }
   end
 
-  defp robotica_test(old_value, new_value, test, new_msg, old_msg, opts \\ []) do
+  defp robotica_test(old_value, new_value, test, new_msg, old_msg) do
     cond do
-      Keyword.get(opts, :filter_nil) != false and old_value == nil ->
+      old_value == nil ->
+        :ok
+
+      new_value == nil ->
         :ok
 
       test.(new_value) ->
@@ -132,10 +135,9 @@ defmodule Scrooge.Tesla do
         robotica_test(
           old_value,
           new_value,
-          fn value -> value != nil end,
+          fn value -> value != :none end,
           "The tesla has arrived at #{new_value}.",
-          "The tesla has departed from #{old_value}.",
-          filter_nil: false
+          "The tesla has departed from #{old_value}."
         )
 
       :plugged_in ->
