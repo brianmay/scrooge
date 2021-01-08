@@ -56,7 +56,7 @@ defmodule Scrooge.Tesla do
   end
 
   def init(_opts) do
-    {:ok, %State{} |> set_timer() }
+    {:ok, %State{} |> set_timer()}
   end
 
   def config_schema do
@@ -176,18 +176,19 @@ defmodule Scrooge.Tesla do
       |> Timex.Timezone.convert("Australia/Melbourne")
       |> Timex.set(time: time)
       |> Timex.Timezone.convert("Etc/UTC")
+
     Timex.compare(utc_now, threshold_time) >= 0
   end
 
   defp handle_poll(state) do
     if robotica() do
-        tesla_state = state.tesla_state
-        begin_charge_time = ~T[20:00:00]
-        utc_now = DateTime.utc_now()
+      tesla_state = state.tesla_state
+      begin_charge_time = ~T[20:00:00]
+      utc_now = DateTime.utc_now()
 
-        if is_after_time(utc_now, begin_charge_time) and not tesla_state.plugged_in do
-            Scrooge.Robotica.publish_message("Plug in Tesla")
-        end
+      if is_after_time(utc_now, begin_charge_time) and not tesla_state.plugged_in do
+        Scrooge.Robotica.publish_message("Plug in Tesla")
+      end
     end
 
     state
@@ -258,5 +259,4 @@ defmodule Scrooge.Tesla do
 
     {:noreply, new_state}
   end
-
 end
