@@ -44,9 +44,11 @@ defmodule Scrooge.Tesla do
     @moduledoc false
     @type t :: %__MODULE__{
             tesla_state: TeslaState.t(),
-            scenes: list(GenServer.server())
+            scenes: list(GenServer.server()),
+            timer: pid(),
+            next_time: DateTime.t()
           }
-    defstruct tesla_state: %TeslaState{}, scenes: []
+    defstruct tesla_state: %TeslaState{}, scenes: [], timer: nil, next_time: nil
   end
 
   def start_link(_) do
@@ -54,7 +56,7 @@ defmodule Scrooge.Tesla do
   end
 
   def init(_opts) do
-    {:ok, %State{}}
+    {:ok, %State{} |> set_timer() }
   end
 
   def config_schema do
@@ -74,8 +76,45 @@ defmodule Scrooge.Tesla do
     GenServer.call(__MODULE__, :get_tesla_state)
   end
 
-  defp robotica_test(old_value, new_value, test, new_msg, old_msg) do
+  def get_next_time(now) do
+    interval = 600
+    Scrooge.Times.round_time(now, interval, 1)
+  end
+
+  defp maximum(v, max) when v > max, do: max
+  defp maximum(v, _max), do: v
+
+  defp minimum(v, max) when v < max, do: max
+  defp minimum(v, _max), do: v
+
+  defp set_timer(%State{next_time: next_time} = state) do
+    now = DateTime.utc_now()
+
+    next_time =
+      case next_time do
+        nil -> get_next_time(now)
+        next_time -> next_time
+      end
+
+    milliseconds = DateTime.diff(next_time, now, :millisecond)
+    milliseconds = maximum(milliseconds, 60 * 1000)
+    milliseconds = minimum(milliseconds, 0)
+
+    Logger.debug("Scrooge.Tesla: Sleeping #{milliseconds} for #{inspect(next_time)}.")
+    timer = Process.send_after(self(), :timer, milliseconds)
+
+    %State{
+      state
+      | timer: timer,
+        next_time: next_time
+    }
+  end
+
+  defp robotica_test(old_value, new_value, test, new_msg, old_msg, opts \\ []) do
     cond do
+      Keyword.get(opts, :filter_nil) != false and old_value == nil ->
+        :ok
+
       test.(new_value) ->
         Scrooge.Robotica.publish_message(new_msg)
 
@@ -95,7 +134,8 @@ defmodule Scrooge.Tesla do
           new_value,
           fn value -> value != nil end,
           "The tesla has arrived at #{new_value}.",
-          "The tesla has departed from #{old_value}."
+          "The tesla has departed from #{old_value}.",
+          filter_nil: false
         )
 
       :plugged_in ->
@@ -128,6 +168,29 @@ defmodule Scrooge.Tesla do
       _ ->
         :ok
     end
+  end
+
+  defp is_after_time(utc_now, time) do
+    threshold_time =
+      utc_now
+      |> Timex.Timezone.convert("Australia/Melbourne")
+      |> Timex.set(time: time)
+      |> Timex.Timezone.convert("Etc/UTC")
+    Timex.compare(utc_now, threshold_time) >= 0
+  end
+
+  defp handle_poll(state) do
+    if robotica() do
+        tesla_state = state.tesla_state
+        begin_charge_time = ~T[20:00:00]
+        utc_now = DateTime.utc_now()
+
+        if is_after_time(utc_now, begin_charge_time) and not tesla_state.plugged_in do
+            Scrooge.Robotica.publish_message("Plug in Tesla")
+        end
+    end
+
+    state
   end
 
   def handle_cast({:update_tesla_state, key, new_value}, state) do
@@ -163,4 +226,37 @@ defmodule Scrooge.Tesla do
     Logger.info("unregister web scene #{inspect(pid)} #{inspect(state.scenes)}")
     {:noreply, state}
   end
+
+  def handle_info(:timer, %State{next_time: next_time} = state) do
+    now = DateTime.utc_now()
+    earliest_time = next_time
+    latest_time = Timex.shift(next_time, seconds: 10)
+
+    new_state =
+      cond do
+        Timex.before?(now, earliest_time) ->
+          Logger.debug("Tesla.Poller: Timer received too early for #{next_time}.")
+
+          state
+          |> set_timer()
+
+        Timex.before?(now, latest_time) ->
+          Logger.debug("Tesla.Poller: Timer received on time for #{next_time}.")
+
+          state
+          |> handle_poll()
+          |> Map.put(:next_time, nil)
+          |> set_timer()
+
+        true ->
+          Logger.debug("Tesla.Poller: Timer received too late for #{next_time}.")
+
+          state
+          |> Map.put(:next_time, nil)
+          |> set_timer()
+      end
+
+    {:noreply, new_state}
+  end
+
 end
