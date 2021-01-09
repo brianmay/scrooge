@@ -115,6 +115,9 @@ defmodule Scrooge.Tesla do
       Keyword.get(opts, :filter_nil) != false and old_value == nil ->
         :ok
 
+      Keyword.get(opts, :filter_nil) != false and new_value == nil ->
+        :ok
+
       test.(new_value) ->
         Scrooge.Robotica.publish_message(new_msg)
 

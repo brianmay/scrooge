@@ -71,10 +71,7 @@ defmodule Scrooge.MqttHandler do
   end
 
   defp string(value) do
-    case value do
-      "" -> nil
-      _ -> value
-    end
+    value
   end
 
   defp date_time(str) do
