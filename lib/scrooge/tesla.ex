@@ -188,7 +188,9 @@ defmodule Scrooge.Tesla do
       begin_charge_time = ~T[20:00:00]
       utc_now = DateTime.utc_now()
 
-      if is_after_time(utc_now, begin_charge_time) and not tesla_state.plugged_in do
+      at_home = tesla_state.geofence == "home"
+
+      if is_after_time(utc_now, begin_charge_time) and not tesla_state.plugged_in and at_home do
         Scrooge.Robotica.publish_message("Plug in Tesla")
       end
     end
