@@ -72,7 +72,7 @@ defmodule Scrooge.MqttHandler do
 
   defp string(value) do
     case value do
-      "" -> :none
+      "" -> nil
       _ -> value
     end
   end
