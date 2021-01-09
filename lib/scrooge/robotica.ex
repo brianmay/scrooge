@@ -1,5 +1,8 @@
 defmodule Scrooge.Robotica do
   @moduledoc "Functions for talking to Robotica."
+
+  require Logger
+
   @spec publish_raw(String.t(), String.t()) :: :ok | {:error, String.t()}
   def publish_raw(topic, data) do
     client_id = Scrooge.Application.get_tortoise_client_id()
@@ -24,6 +27,7 @@ defmodule Scrooge.Robotica do
 
   @spec publish_message(String.t()) :: :ok | {:error, String.t()}
   def publish_message(message) do
+    Logger.info("Robotica message #{message}")
     action = %{
       "locations" => ["Brian"],
       "action" => %{

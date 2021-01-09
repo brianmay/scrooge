@@ -103,7 +103,7 @@ defmodule Scrooge.MqttHandler do
         Logger.info("Invalid #{inspect(key)} value #{inspect(publish)} received")
 
       {key, value} ->
-        Logger.debug("Got #{inspect(key)} #{inspect(value)}")
+        Logger.debug("Got #{inspect(key)} #{inspect(publish)} #{inspect(value)}")
         Scrooge.Tesla.update_tesla_state(key, value)
 
       nil ->
