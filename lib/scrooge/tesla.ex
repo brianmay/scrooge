@@ -232,13 +232,10 @@ defmodule Scrooge.Tesla do
 
   @spec check_conditions(Conditions.t(), Conditions.t()) :: :ok
   defp check_conditions(old, new) do
-    if robotica() do
-      check_geofence(old.geofence, new.geofence)
-      check_plugged_in(old.plugged_in, new.plugged_in)
-      check_insecure(old.insecure, new.insecure)
-      check_plug_in_required(old.insecure, new.insecure)
-    end
-
+    check_geofence(old.geofence, new.geofence)
+    check_plugged_in(old.plugged_in, new.plugged_in)
+    check_insecure(old.insecure, new.insecure)
+    check_plug_in_required(old.insecure, new.insecure)
     :ok
   end
 
@@ -249,7 +246,11 @@ defmodule Scrooge.Tesla do
          old_conditions
        ) do
     new_conditions = get_conditions(utc_time, tesla_state)
-    :ok = check_conditions(old_conditions, new_conditions)
+
+    if robotica() do
+      :ok = check_conditions(old_conditions, new_conditions)
+    end
+
     new_conditions
   end
 
