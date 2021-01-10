@@ -42,6 +42,20 @@ defmodule Scrooge.Tesla do
     ]
   end
 
+  defmodule Conditions do
+    @moduledoc false
+    @type t :: %__MODULE__{
+            geofence: String.t() | nil,
+            plugged_in: boolean(),
+            insecure: boolean(),
+            plug_in_required: boolean()
+          }
+    defstruct geofence: nil,
+              plugged_in: false,
+              insecure: false,
+              plug_in_required: false
+  end
+
   defmodule State do
     @moduledoc false
     @type t :: %__MODULE__{
@@ -49,13 +63,13 @@ defmodule Scrooge.Tesla do
             scenes: list(GenServer.server()),
             timer: pid(),
             next_time: DateTime.t(),
-            active_conditions: MapSet.t()
+            active_conditions: Conditions.t()
           }
     defstruct tesla_state: %TeslaState{},
               scenes: [],
               timer: nil,
               next_time: nil,
-              active_conditions: MapSet.new()
+              active_conditions: %Conditions{}
   end
 
   def start_link(_) do
@@ -117,40 +131,6 @@ defmodule Scrooge.Tesla do
     }
   end
 
-  @spec robotica_test(
-          atom(),
-          MapSet.t(),
-          boolean(),
-          boolean(),
-          String.t(),
-          String.t()
-        ) :: MapSet.t()
-  defp robotica_test(id, active_conditions, ignore?, is_active?, new_msg, old_msg) do
-    was_active = MapSet.member?(active_conditions, id)
-
-    cond do
-      ignore? ->
-        active_conditions
-
-      is_active? ->
-        if robotica() do
-          Scrooge.Robotica.publish_message(new_msg)
-        end
-
-        MapSet.put(active_conditions, id)
-
-      was_active and not is_active? ->
-        if robotica() do
-          Scrooge.Robotica.publish_message(old_msg)
-        end
-
-        MapSet.delete(active_conditions, id)
-
-      true ->
-        active_conditions
-    end
-  end
-
   @spec unlocked_delta(DateTime.t(), TeslaState.t()) :: integer()
   defp unlocked_delta(utc_time, %TeslaState{} = tesla_state) do
     case tesla_state.unlocked_time do
@@ -159,66 +139,118 @@ defmodule Scrooge.Tesla do
     end
   end
 
-  @spec check_insecure(DateTime.t(), TeslaState.t()) :: boolean
-  defp check_insecure(utc_time, tesla_state) do
-    unlocked_delta = unlocked_delta(utc_time, tesla_state)
-    unlocked_delta != nil and unlocked_delta > 300 and tesla_state.is_user_present == false
+  defp is_after_time(utc_now, time) do
+    threshold_time =
+      utc_now
+      |> Timex.Timezone.convert("Australia/Melbourne")
+      |> Timex.set(time: time)
+      |> Timex.Timezone.convert("Etc/UTC")
+
+    Timex.compare(utc_now, threshold_time) >= 0
   end
 
-  @spec robotica_check_all(MapSet.t(), atom(), any(), any(), DateTime.t(), TeslaState.t()) ::
-          MapSet.t()
-  defp robotica_check_all(
-         active_conditions,
-         key,
-         old_value,
-         new_value,
-         utc_time,
-         %TeslaState{} = tesla_state
-       ) do
-    case key do
-      :geofence ->
-        robotica_test(
-          key,
-          active_conditions,
-          false,
-          new_value != nil,
-          "The tesla has arrived at #{new_value}.",
-          "The tesla has departed from #{old_value}."
-        )
+  @spec test_insecure(DateTime.t(), TeslaState.t()) :: boolean
+  defp test_insecure(utc_time, tesla_state) do
+    unlocked_delta = unlocked_delta(utc_time, tesla_state)
+    unlocked = unlocked_delta != nil and unlocked_delta > 300
+    windows_open = tesla_state.windows_open == true and tesla_state.locked == true
+    (unlocked or windows_open) and tesla_state.is_user_present == false
+  end
 
-      :plugged_in ->
-        robotica_test(
-          key,
-          active_conditions,
-          old_value == nil,
-          new_value == true,
-          "The tesla has been plugged in.",
-          "The tesla has been disconnected."
-        )
+  @spec test_plug_in_required(DateTime.t(), TeslaState.t()) :: boolean
+  defp test_plug_in_required(utc_time, tesla_state) do
+    at_home = tesla_state.geofence == "home"
+    begin_charge_time = ~T[20:00:00]
+    is_after_time(utc_time, begin_charge_time) and at_home and not tesla_state.plugged_in
+  end
 
-      :locked ->
-        robotica_test(
-          :insecure,
-          active_conditions,
-          false,
-          check_insecure(utc_time, tesla_state),
-          "The tesla is feeling insecure (unlocked).",
-          "The tesla is feeling secure (locked)."
-        )
+  @spec get_conditions(DateTime.t(), TeslaState.t()) :: Conditions.t()
+  defp get_conditions(utc_time, %TeslaState{} = tesla_state) do
+    %Conditions{
+      geofence: tesla_state.geofence,
+      plugged_in: tesla_state.plugged_in == true,
+      insecure: test_insecure(utc_time, tesla_state),
+      plug_in_required: test_plug_in_required(utc_time, tesla_state)
+    }
+  end
 
-      :is_user_present ->
-        robotica_test(
-          :insecure,
-          active_conditions,
-          false,
-          check_insecure(utc_time, tesla_state),
-          "The tesla is feeling insecure (no driver).",
-          "The tesla is feeling secure (driver returned)."
-        )
+  @spec check_geofence(String.t() | nil, String.t() | nil) :: :ok
+  def check_geofence(old, new) do
+    cond do
+      old != new and new != nil ->
+        Scrooge.Robotica.publish_message("The tesla arrived at #{new}.")
 
-      _ ->
-        active_conditions
+      old != nil and new == nil ->
+        Scrooge.Robotica.publish_message("The tesla departed from #{old}.")
+
+      true ->
+        nil
     end
+  end
+
+  @spec check_plugged_in(boolean(), boolean()) :: :ok
+  defp check_plugged_in(old, new) do
+    cond do
+      old == false and new == true ->
+        Scrooge.Robotica.publish_message("The tesla is plugged in.")
+
+      old == true and new == false ->
+        Scrooge.Robotica.publish_message("The tesla is disconnected.")
+
+      true ->
+        nil
+    end
+  end
+
+  @spec check_insecure(boolean(), boolean()) :: :ok
+  defp check_insecure(old, new) do
+    cond do
+      old == false and new == true ->
+        Scrooge.Robotica.publish_message("The tesla is feeling insecure")
+
+      old == true and new == false ->
+        Scrooge.Robotica.publish_message("The tesla is feeling secure")
+
+      true ->
+        nil
+    end
+  end
+
+  @spec check_plug_in_required(boolean(), boolean()) :: :ok
+  defp check_plug_in_required(old, new) do
+    cond do
+      old == false and new == true ->
+        Scrooge.Robotica.publish_message("The tesla requires plugging in")
+
+      old == true and new == false ->
+        Scrooge.Robotica.publish_message("The tesla no longer requires plugging in")
+
+      true ->
+        nil
+    end
+  end
+
+  @spec check_conditions(Conditions.t(), Conditions.t()) :: :ok
+  defp check_conditions(old, new) do
+    if robotica() do
+      check_geofence(old.geofence, new.geofence)
+      check_plugged_in(old.plugged_in, new.plugged_in)
+      check_insecure(old.insecure, new.insecure)
+      check_plug_in_required(old.insecure, new.insecure)
+    end
+
+    :ok
+  end
+
+  @spec robotica_check_all(DateTime.t(), TeslaState.t(), Conditions.t()) :: Conditions.t()
+  defp robotica_check_all(
+         utc_time,
+         %TeslaState{} = tesla_state,
+         old_conditions
+       ) do
+    new_conditions = get_conditions(utc_time, tesla_state)
+    :ok = check_conditions(old_conditions, new_conditions)
+    new_conditions
   end
 
   defp check_unlocked_time(%TeslaState{} = tesla_state, :locked, utc_time, old_value, new_value) do
@@ -240,48 +272,17 @@ defmodule Scrooge.Tesla do
   defp check_unlocked_time(%TeslaState{} = tesla_state, _, _utc_time, _old_value, _new_value),
     do: tesla_state
 
-  defp is_after_time(utc_now, time) do
-    threshold_time =
-      utc_now
-      |> Timex.Timezone.convert("Australia/Melbourne")
-      |> Timex.set(time: time)
-      |> Timex.Timezone.convert("Etc/UTC")
-
-    Timex.compare(utc_now, threshold_time) >= 0
-  end
-
   defp handle_poll(%State{} = state) do
     if robotica() do
-      tesla_state = state.tesla_state
-      active_conditions = state.active_conditions
-      begin_charge_time = ~T[20:00:00]
       utc_now = DateTime.utc_now()
 
-      at_home = tesla_state.geofence == "home"
+      tesla_state = state.tesla_state
+      old_conditions = state.active_conditions
 
-      active_conditions =
-        if is_after_time(utc_now, begin_charge_time) and at_home do
-          MapSet.put(active_conditions, :plug_in_required)
-        else
-          MapSet.delete(active_conditions, :plug_in_required)
-        end
+      new_conditions = get_conditions(utc_now, tesla_state)
+      :ok = check_conditions(old_conditions, new_conditions)
 
-      active_conditions =
-        if check_insecure(utc_now, tesla_state) do
-          MapSet.put(active_conditions, :insecure)
-        else
-          MapSet.delete(active_conditions, :insecure)
-        end
-
-      if MapSet.member?(active_conditions, :plug_in_required) and not state.plugged_in do
-        Scrooge.Robotica.publish_message("Plug in the Tesla")
-      end
-
-      if MapSet.member?(active_conditions, :insecure) do
-        Scrooge.Robotica.publish_message("The tesla is insecure, please lock the tesla")
-      end
-
-      %State{state | active_conditions: active_conditions}
+      %State{state | active_conditions: new_conditions}
     end
   end
 
@@ -297,12 +298,9 @@ defmodule Scrooge.Tesla do
       if old_value != new_value do
         active_conditions =
           robotica_check_all(
-            state.active_conditions,
-            key,
-            old_value,
-            new_value,
             utc_time,
-            new_state
+            new_state,
+            state.active_conditions
           )
 
         %State{state | active_conditions: active_conditions}

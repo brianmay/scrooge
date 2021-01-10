@@ -93,6 +93,28 @@
       </td>
     </tr>
     <% end %>
+
+    <%= if valid(@tesla_state.is_user_present) do %>
+    <tr>
+      <th>Is User Present</th>
+      <td>
+        <%= @tesla_state.is_user_present %>
+      </td>
+    <% end %>
+
+
+    <%= if valid(@tesla_state.locked) do %>
+    <tr>
+      <th>Locked</th>
+      <td>
+        <%= @tesla_state.locked %>
+        <%= if @tesla_state.unlocked_time do %>
+          at <%= @tesla_state.unlocked_time |> date_time_to_local() %></td>
+        <% end %>
+      </td>
+    </tr>
+
+    <% end %>
   <tbody>
 </table>
 
