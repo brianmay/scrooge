@@ -65,6 +65,7 @@ defmodule Scrooge.Tesla do
             scenes: list(GenServer.server()),
             timer: reference() | nil,
             next_time: DateTime.t() | nil,
+            silence_alerts: boolean(),
             alert_time: DateTime.t() | nil,
             active_conditions: Conditions.t()
           }
@@ -72,6 +73,7 @@ defmodule Scrooge.Tesla do
               scenes: [],
               timer: nil,
               next_time: nil,
+              silence_alerts: true,
               alert_time: nil,
               active_conditions: %Conditions{}
   end
@@ -82,6 +84,8 @@ defmodule Scrooge.Tesla do
 
   @spec init(map()) :: {:ok, State.t()}
   def init(_opts) do
+    # Allow state to stabilize after start
+    Process.send_after(self(), :desilence, 1000)
     {:ok, %State{} |> set_timer()}
   end
 
@@ -271,15 +275,17 @@ defmodule Scrooge.Tesla do
     :ok
   end
 
-  @spec robotica_check_all(DateTime.t(), TeslaState.t(), Conditions.t()) :: Conditions.t()
+  @spec robotica_check_all(DateTime.t(), TeslaState.t(), Conditions.t(), keyword()) ::
+          Conditions.t()
   defp robotica_check_all(
          utc_time,
          %TeslaState{} = tesla_state,
-         old_conditions
+         old_conditions,
+         opts
        ) do
     new_conditions = get_conditions(utc_time, tesla_state)
 
-    if robotica() do
+    if robotica() and Keyword.get(opts, :silence_alerts, false) == false do
       :ok = check_conditions(old_conditions, new_conditions, false)
     end
 
@@ -315,7 +321,7 @@ defmodule Scrooge.Tesla do
 
     new_conditions = get_conditions(utc_now, tesla_state)
 
-    if robotica() do
+    if robotica() and state.silence_alerts == false do
       :ok = check_conditions(old_conditions, new_conditions, alert)
     end
 
@@ -336,7 +342,8 @@ defmodule Scrooge.Tesla do
           robotica_check_all(
             utc_time,
             new_state,
-            state.active_conditions
+            state.active_conditions,
+            silence_alerts: state.silence_alerts
           )
 
         %State{state | active_conditions: active_conditions}
@@ -375,6 +382,12 @@ defmodule Scrooge.Tesla do
     state = %State{state | scenes: List.delete(state.scenes, pid)}
     Logger.info("unregister web scene #{inspect(pid)} #{inspect(state.scenes)}")
     {:noreply, state}
+  end
+
+  def handle_info(:desilence, %State{} = state) do
+    # Allow state to stabilize after start
+    Logger.info("desilencing alerts")
+    {:noreply, %State{state | silence_alerts: false}}
   end
 
   def handle_info(:timer, %State{next_time: next_time} = state) do
