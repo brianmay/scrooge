@@ -172,7 +172,7 @@ defmodule Scrooge.Tesla do
   defp test_plug_in_required(utc_time, tesla_state) do
     at_home = tesla_state.geofence == "Home"
     begin_charge_time = ~T[20:00:00]
-    is_after_time(utc_time, begin_charge_time) and at_home and tesla_state.plugged_in==false
+    is_after_time(utc_time, begin_charge_time) and at_home and tesla_state.plugged_in == false
   end
 
   @spec get_conditions(DateTime.t(), TeslaState.t()) :: Conditions.t()
@@ -252,7 +252,7 @@ defmodule Scrooge.Tesla do
     check_geofence(old.geofence, new.geofence, alert)
     check_plugged_in(old.plugged_in, new.plugged_in, alert)
     check_insecure(old.insecure, new.insecure, alert)
-    check_plug_in_required(old.insecure, new.insecure, alert)
+    check_plug_in_required(old.plug_in_required, new.plug_in_required, alert)
     :ok
   end
 
