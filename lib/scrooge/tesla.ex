@@ -61,7 +61,7 @@ defmodule Scrooge.Tesla do
     @type t :: %__MODULE__{
             tesla_state: TeslaState.t(),
             scenes: list(GenServer.server()),
-            timer: pid(),
+            timer: reference() | nil,
             next_time: DateTime.t() | nil,
             alert_time: DateTime.t() | nil,
             active_conditions: Conditions.t()
@@ -78,6 +78,7 @@ defmodule Scrooge.Tesla do
     GenServer.start_link(__MODULE__, nil, name: __MODULE__)
   end
 
+  @spec init(map()) :: {:ok, State.t()}
   def init(_opts) do
     {:ok, %State{} |> set_timer()}
   end
@@ -99,16 +100,20 @@ defmodule Scrooge.Tesla do
     GenServer.call(__MODULE__, :get_tesla_state)
   end
 
+  @spec get_next_time(DateTime.t(), integer) :: DateTime.t()
   def get_next_time(now, interval) do
     Scrooge.Times.round_time(now, interval, 1)
   end
 
+  @spec maximum(integer(), integer()) :: integer()
   defp maximum(v, max) when v > max, do: max
   defp maximum(v, _max), do: v
 
+  @spec minimum(integer(), integer()) :: integer()
   defp minimum(v, max) when v < max, do: max
   defp minimum(v, _max), do: v
 
+  @spec set_timer(State.t()) :: State.t()
   defp set_timer(%State{next_time: next_time, alert_time: alert_time} = state) do
     now = DateTime.utc_now()
 
@@ -150,6 +155,7 @@ defmodule Scrooge.Tesla do
     end
   end
 
+  @spec is_after_time(DateTime.t(), Time.t()) :: boolean()
   defp is_after_time(utc_now, time) do
     threshold_time =
       utc_now
@@ -271,6 +277,7 @@ defmodule Scrooge.Tesla do
     new_conditions
   end
 
+  @spec check_unlocked_time(TeslaState.t(), atom(), DateTime.t(), any(), any()) :: TeslaState.t()
   defp check_unlocked_time(%TeslaState{} = tesla_state, :locked, utc_time, old_value, new_value) do
     cond do
       old_value == true and new_value == false ->

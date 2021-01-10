@@ -10,7 +10,7 @@ defmodule Scrooge.Aemo do
     @type t :: %__MODULE__{
             aemo_state: map() | nil,
             scenes: list(GenServer.server()),
-            timer: pid() | nil,
+            timer: reference() | nil,
             next_time: DateTime.t() | nil
           }
     @enforce_keys [:aemo_state, :scenes, :timer, :next_time]
