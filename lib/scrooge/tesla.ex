@@ -1,5 +1,5 @@
 defmodule Scrooge.Tesla do
-  @moduledoc "A server that keeps track of the latest tesla information"
+  @moduledoc "A server that keeps track of the latest Tesla information"
 
   use GenServer
   require Logger
@@ -62,13 +62,15 @@ defmodule Scrooge.Tesla do
             tesla_state: TeslaState.t(),
             scenes: list(GenServer.server()),
             timer: pid(),
-            next_time: DateTime.t(),
+            next_time: DateTime.t() | nil,
+            alert_time: DateTime.t() | nil,
             active_conditions: Conditions.t()
           }
     defstruct tesla_state: %TeslaState{},
               scenes: [],
               timer: nil,
               next_time: nil,
+              alert_time: nil,
               active_conditions: %Conditions{}
   end
 
@@ -97,8 +99,7 @@ defmodule Scrooge.Tesla do
     GenServer.call(__MODULE__, :get_tesla_state)
   end
 
-  def get_next_time(now) do
-    interval = 600
+  def get_next_time(now, interval) do
     Scrooge.Times.round_time(now, interval, 1)
   end
 
@@ -108,26 +109,36 @@ defmodule Scrooge.Tesla do
   defp minimum(v, max) when v < max, do: max
   defp minimum(v, _max), do: v
 
-  defp set_timer(%State{next_time: next_time} = state) do
+  defp set_timer(%State{next_time: next_time, alert_time: alert_time} = state) do
     now = DateTime.utc_now()
 
     next_time =
       case next_time do
-        nil -> get_next_time(now)
+        nil -> get_next_time(now, 60)
         next_time -> next_time
+      end
+
+    alert_time =
+      case alert_time do
+        nil -> get_next_time(now, 600)
+        alert_time -> alert_time
       end
 
     milliseconds = DateTime.diff(next_time, now, :millisecond)
     milliseconds = maximum(milliseconds, 60 * 1000)
     milliseconds = minimum(milliseconds, 0)
 
-    Logger.debug("Scrooge.Tesla: Sleeping #{milliseconds} for #{inspect(next_time)}.")
+    Logger.debug(
+      "Scrooge.Tesla: Sleeping #{milliseconds} for #{inspect(next_time)} / #{inspect(alert_time)}."
+    )
+
     timer = Process.send_after(self(), :timer, milliseconds)
 
     %State{
       state
       | timer: timer,
-        next_time: next_time
+        next_time: next_time,
+        alert_time: alert_time
     }
   end
 
@@ -159,9 +170,9 @@ defmodule Scrooge.Tesla do
 
   @spec test_plug_in_required(DateTime.t(), TeslaState.t()) :: boolean
   defp test_plug_in_required(utc_time, tesla_state) do
-    at_home = tesla_state.geofence == "home"
+    at_home = tesla_state.geofence == "Home"
     begin_charge_time = ~T[20:00:00]
-    is_after_time(utc_time, begin_charge_time) and at_home and not tesla_state.plugged_in
+    is_after_time(utc_time, begin_charge_time) and at_home and tesla_state.plugged_in==false
   end
 
   @spec get_conditions(DateTime.t(), TeslaState.t()) :: Conditions.t()
@@ -174,68 +185,74 @@ defmodule Scrooge.Tesla do
     }
   end
 
-  @spec check_geofence(String.t() | nil, String.t() | nil) :: :ok
-  def check_geofence(old, new) do
+  @spec check_geofence(String.t() | nil, String.t() | nil, boolean()) :: :ok
+  def check_geofence(old, new, _alert) do
     cond do
       old != new and new != nil ->
-        Scrooge.Robotica.publish_message("The tesla arrived at #{new}.")
+        Scrooge.Robotica.publish_message("The Tesla arrived at #{new}.")
 
       old != nil and new == nil ->
-        Scrooge.Robotica.publish_message("The tesla departed from #{old}.")
+        Scrooge.Robotica.publish_message("The Tesla departed from #{old}.")
 
       true ->
         nil
     end
   end
 
-  @spec check_plugged_in(boolean(), boolean()) :: :ok
-  defp check_plugged_in(old, new) do
+  @spec check_plugged_in(boolean(), boolean(), boolean()) :: :ok
+  defp check_plugged_in(old, new, _alert) do
     cond do
       old == false and new == true ->
-        Scrooge.Robotica.publish_message("The tesla is plugged in.")
+        Scrooge.Robotica.publish_message("The Tesla is plugged in.")
 
       old == true and new == false ->
-        Scrooge.Robotica.publish_message("The tesla is disconnected.")
+        Scrooge.Robotica.publish_message("The Tesla is disconnected.")
 
       true ->
         nil
     end
   end
 
-  @spec check_insecure(boolean(), boolean()) :: :ok
-  defp check_insecure(old, new) do
+  @spec check_insecure(boolean(), boolean(), boolean()) :: :ok
+  defp check_insecure(old, new, alert) do
     cond do
       old == false and new == true ->
-        Scrooge.Robotica.publish_message("The tesla is feeling insecure")
+        Scrooge.Robotica.publish_message("The Tesla is feeling insecure.")
+
+      alert == true and new == true ->
+        Scrooge.Robotica.publish_message("Lock Tesla.")
 
       old == true and new == false ->
-        Scrooge.Robotica.publish_message("The tesla is feeling secure")
+        Scrooge.Robotica.publish_message("The Tesla is feeling secure.")
 
       true ->
         nil
     end
   end
 
-  @spec check_plug_in_required(boolean(), boolean()) :: :ok
-  defp check_plug_in_required(old, new) do
+  @spec check_plug_in_required(boolean(), boolean(), boolean()) :: :ok
+  defp check_plug_in_required(old, new, alert) do
     cond do
       old == false and new == true ->
-        Scrooge.Robotica.publish_message("The tesla requires plugging in")
+        Scrooge.Robotica.publish_message("The Tesla requires plugging in.")
+
+      alert == true and new == true ->
+        Scrooge.Robotica.publish_message("Plug in Tesla.")
 
       old == true and new == false ->
-        Scrooge.Robotica.publish_message("The tesla no longer requires plugging in")
+        Scrooge.Robotica.publish_message("The Tesla no longer requires plugging in.")
 
       true ->
         nil
     end
   end
 
-  @spec check_conditions(Conditions.t(), Conditions.t()) :: :ok
-  defp check_conditions(old, new) do
-    check_geofence(old.geofence, new.geofence)
-    check_plugged_in(old.plugged_in, new.plugged_in)
-    check_insecure(old.insecure, new.insecure)
-    check_plug_in_required(old.insecure, new.insecure)
+  @spec check_conditions(Conditions.t(), Conditions.t(), boolean()) :: :ok
+  defp check_conditions(old, new, alert) do
+    check_geofence(old.geofence, new.geofence, alert)
+    check_plugged_in(old.plugged_in, new.plugged_in, alert)
+    check_insecure(old.insecure, new.insecure, alert)
+    check_plug_in_required(old.insecure, new.insecure, alert)
     :ok
   end
 
@@ -248,7 +265,7 @@ defmodule Scrooge.Tesla do
     new_conditions = get_conditions(utc_time, tesla_state)
 
     if robotica() do
-      :ok = check_conditions(old_conditions, new_conditions)
+      :ok = check_conditions(old_conditions, new_conditions, false)
     end
 
     new_conditions
@@ -273,7 +290,8 @@ defmodule Scrooge.Tesla do
   defp check_unlocked_time(%TeslaState{} = tesla_state, _, _utc_time, _old_value, _new_value),
     do: tesla_state
 
-  defp handle_poll(%State{} = state) do
+  @spec handle_poll(State.t(), boolean()) :: State.t()
+  defp handle_poll(%State{} = state, alert) do
     utc_now = DateTime.utc_now()
 
     tesla_state = state.tesla_state
@@ -282,7 +300,7 @@ defmodule Scrooge.Tesla do
     new_conditions = get_conditions(utc_now, tesla_state)
 
     if robotica() do
-      :ok = check_conditions(old_conditions, new_conditions)
+      :ok = check_conditions(old_conditions, new_conditions, alert)
     end
 
     %State{state | active_conditions: new_conditions}
@@ -328,6 +346,15 @@ defmodule Scrooge.Tesla do
     {:reply, {state.active_conditions, state.tesla_state}, state}
   end
 
+  @spec check_alert_time(State.t(), DateTime.t()) :: boolean()
+  defp check_alert_time(%State{alert_time: alert_time}, utc_now) do
+    not Timex.before?(utc_now, alert_time)
+  end
+
+  @spec maybe_reset_alert_time(State.t(), boolean()) :: State.t()
+  defp maybe_reset_alert_time(%State{} = state, false), do: state
+  defp maybe_reset_alert_time(%State{} = state, true), do: %State{state | alert_time: nil}
+
   def handle_info({:DOWN, _ref, :process, pid, _reason}, %State{} = state) do
     state = %State{state | scenes: List.delete(state.scenes, pid)}
     Logger.info("unregister web scene #{inspect(pid)} #{inspect(state.scenes)}")
@@ -348,11 +375,13 @@ defmodule Scrooge.Tesla do
           |> set_timer()
 
         Timex.before?(now, latest_time) ->
-          Logger.debug("Tesla.Poller: Timer received on time for #{next_time}.")
+          alert = check_alert_time(state, now)
+          Logger.debug("Tesla.Poller: Timer received on time for #{next_time} is alert #{alert}.")
 
           state
-          |> handle_poll()
+          |> handle_poll(alert)
           |> Map.put(:next_time, nil)
+          |> maybe_reset_alert_time(alert)
           |> set_timer()
 
         true ->
