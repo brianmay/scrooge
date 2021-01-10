@@ -95,13 +95,15 @@ defmodule Scrooge.MqttHandler do
   defp decode(_, _), do: nil
 
   def handle_message(["teslamate", "cars", "1" | topic], publish, state) do
+    utc_now = DateTime.utc_now()
+
     case decode(topic, publish) do
       {key, :error} ->
         Logger.info("Invalid #{inspect(key)} value #{inspect(publish)} received")
 
       {key, value} ->
         Logger.debug("Got #{inspect(key)} #{inspect(publish)} #{inspect(value)}")
-        Scrooge.Tesla.update_tesla_state(key, value)
+        Scrooge.Tesla.update_tesla_state(utc_now, key, value)
 
       nil ->
         nil
