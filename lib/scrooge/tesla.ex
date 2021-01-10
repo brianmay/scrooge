@@ -134,7 +134,7 @@ defmodule Scrooge.Tesla do
     milliseconds = minimum(milliseconds, 0)
 
     Logger.debug(
-      "Scrooge.Tesla: Sleeping #{milliseconds} for #{inspect(next_time)} / #{inspect(alert_time)}."
+      "Tesla.Poller: Sleeping #{milliseconds} for #{inspect(next_time)} / #{inspect(alert_time)}."
     )
 
     timer = Process.send_after(self(), :timer, milliseconds)

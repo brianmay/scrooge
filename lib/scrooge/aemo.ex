@@ -67,7 +67,7 @@ defmodule Scrooge.Aemo do
     milliseconds = maximum(milliseconds, 60 * 1000)
     milliseconds = minimum(milliseconds, 0)
 
-    Logger.debug("Scrooge.Aemo: Sleeping #{milliseconds} for #{inspect(next_time)}.")
+    Logger.debug("Aemo.Poller: Sleeping #{milliseconds} for #{inspect(next_time)}.")
     timer = Process.send_after(self(), :timer, milliseconds)
 
     %State{
