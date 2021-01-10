@@ -172,8 +172,7 @@ defmodule Scrooge.Tesla do
   defp test_insecure(utc_time, tesla_state) do
     unlocked_delta = unlocked_delta(utc_time, tesla_state)
     unlocked = unlocked_delta != nil and unlocked_delta > 300
-    windows_open = tesla_state.windows_open == true and tesla_state.locked == true
-    (unlocked or windows_open) and tesla_state.is_user_present == false
+    unlocked and tesla_state.is_user_present == false
   end
 
   @spec test_plug_in_required(DateTime.t(), TeslaState.t()) :: boolean
