@@ -181,15 +181,14 @@ defmodule Scrooge.Tesla do
     at_home = tesla_state.geofence == "Home"
     normal_charge_time = ~T[20:00:00]
     urgent_charge_time = ~T[08:00:00]
-    common = at_home and tesla_state.plugged_in == false
 
-    normal =
-      common and is_after_time(utc_time, normal_charge_time) and tesla_state.battery_level <= 80
+    battery_normal = tesla_state.battery_level != nil and tesla_state.battery_level <= 80
+    battery_urgent = tesla_state.battery_level != nil and tesla_state.battery_level <= 50
+    battery_urgent = battery_urgent or tesla_state.battery_level == nil
 
-    urgent =
-      common and is_after_time(utc_time, urgent_charge_time) and tesla_state.battery_level <= 50
-
-    normal or urgent
+    normal = is_after_time(utc_time, normal_charge_time) and battery_normal
+    urgent = is_after_time(utc_time, urgent_charge_time) and battery_urgent
+    at_home and tesla_state.plugged_in == false and (normal or urgent)
   end
 
   @spec get_conditions(DateTime.t(), TeslaState.t()) :: Conditions.t()
