@@ -22,6 +22,7 @@ defmodule Scrooge.Tesla do
             locked: boolean() | nil,
             is_user_present: boolean() | nil,
             geofence: String.t() | nil,
+            battery_level: integer() | nil,
             unlocked_time: DateTime.t() | nil
           }
     defstruct [
@@ -38,6 +39,7 @@ defmodule Scrooge.Tesla do
       :locked,
       :is_user_present,
       :geofence,
+      :battery_level,
       :unlocked_time
     ]
   end
@@ -177,8 +179,17 @@ defmodule Scrooge.Tesla do
   @spec test_plug_in_required(DateTime.t(), TeslaState.t()) :: boolean
   defp test_plug_in_required(utc_time, tesla_state) do
     at_home = tesla_state.geofence == "Home"
-    begin_charge_time = ~T[20:00:00]
-    is_after_time(utc_time, begin_charge_time) and at_home and tesla_state.plugged_in == false
+    normal_charge_time = ~T[20:00:00]
+    urgent_charge_time = ~T[08:00:00]
+    common = at_home and tesla_state.plugged_in == false
+
+    normal =
+      common and is_after_time(utc_time, normal_charge_time) and tesla_state.battery_level <= 80
+
+    urgent =
+      common and is_after_time(utc_time, urgent_charge_time) and tesla_state.battery_level <= 50
+
+    normal or urgent
   end
 
   @spec get_conditions(DateTime.t(), TeslaState.t()) :: Conditions.t()

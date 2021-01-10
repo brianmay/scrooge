@@ -92,6 +92,7 @@ defmodule Scrooge.MqttHandler do
   defp decode(["locked"], body), do: {:locked, boolean(body)}
   defp decode(["is_user_present"], body), do: {:is_user_present, boolean(body)}
   defp decode(["geofence"], body), do: {:geofence, string(body)}
+  defp decode(["battery_level"], body), do: {:battery_level, integer(body)}
   defp decode(_, _), do: nil
 
   def handle_message(["teslamate", "cars", "1" | topic], publish, state) do
