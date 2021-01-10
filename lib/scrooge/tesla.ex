@@ -273,17 +273,18 @@ defmodule Scrooge.Tesla do
     do: tesla_state
 
   defp handle_poll(%State{} = state) do
+    utc_now = DateTime.utc_now()
+
+    tesla_state = state.tesla_state
+    old_conditions = state.active_conditions
+
+    new_conditions = get_conditions(utc_now, tesla_state)
+
     if robotica() do
-      utc_now = DateTime.utc_now()
-
-      tesla_state = state.tesla_state
-      old_conditions = state.active_conditions
-
-      new_conditions = get_conditions(utc_now, tesla_state)
       :ok = check_conditions(old_conditions, new_conditions)
-
-      %State{state | active_conditions: new_conditions}
     end
+
+    %State{state | active_conditions: new_conditions}
   end
 
   def handle_cast({:update_tesla_state, utc_time, key, new_value}, %State{} = state) do
