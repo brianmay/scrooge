@@ -74,12 +74,13 @@ defmodule Scrooge.Tesla do
     @type t :: %__MODULE__{
             id: atom(),
             test: (DateTime.t(), TeslaState.t() -> boolean()),
-            on_msg: (TeslaState.t() -> String.t()) | nil,
-            alert_msg: (TeslaState.t() -> String.t()) | nil,
-            off_msg: (TeslaState.t() -> String.t()) | nil
+            data: (DateTime.t(), TeslaState.t() -> any()),
+            on_msg: (any() -> String.t()) | nil,
+            alert_msg: (any() -> String.t()) | nil,
+            off_msg: (any() -> String.t()) | nil
           }
-    @enforce_keys [:id, :test, :on_msg, :alert_msg, :off_msg]
-    defstruct [:id, :test, :on_msg, :alert_msg, :off_msg]
+    @enforce_keys [:id, :test, :data, :on_msg, :alert_msg, :off_msg]
+    defstruct [:id, :test, :data, :on_msg, :alert_msg, :off_msg]
   end
 
   def start_link(_) do
@@ -204,13 +205,15 @@ defmodule Scrooge.Tesla do
       %Rule{
         id: :geofence,
         test: fn _, tesla_state -> tesla_state.geofence != nil end,
-        on_msg: fn tesla_state -> "The Tesla arrived at #{tesla_state.geofence}" end,
+        data: fn _, tesla_state -> tesla_state.geofence end,
+        on_msg: fn data -> "The Tesla arrived at #{data}" end,
         alert_msg: nil,
-        off_msg: fn tesla_state -> "The Tesla departed from #{tesla_state.geofence}." end
+        off_msg: fn data -> "The Tesla departed from #{data}." end
       },
       %Rule{
         id: :plugged_in,
         test: fn _, tesla_state -> tesla_state.plugged_in == true end,
+        data: fn _, _ -> nil end,
         on_msg: fn _ -> "The Tesla is plugged in" end,
         alert_msg: nil,
         off_msg: fn _ -> "The Tesla is disconnected." end
@@ -218,6 +221,7 @@ defmodule Scrooge.Tesla do
       %Rule{
         id: :insecure,
         test: fn utc_time, tesla_state -> test_insecure(utc_time, tesla_state) end,
+        data: fn _, _ -> nil end,
         on_msg: fn _ -> "The Tesla is feeling insecure." end,
         alert_msg: fn _ -> "Lock the Tesla." end,
         off_msg: fn _ -> "The Tesla is not insecure." end
@@ -225,6 +229,7 @@ defmodule Scrooge.Tesla do
       %Rule{
         id: :plug_in_required,
         test: fn utc_time, tesla_state -> test_plug_in_required(utc_time, tesla_state) end,
+        data: fn _, _ -> nil end,
         on_msg: fn _ -> "The Tesla requires plugging in." end,
         alert_msg: fn _ -> "Plug in the Tesla." end,
         off_msg: fn _ -> "The Tesla no longer requires plugging in." end
@@ -234,27 +239,28 @@ defmodule Scrooge.Tesla do
   @spec get_conditions(DateTime.t(), TeslaState.t()) :: Conditions.t()
   defp get_conditions(utc_time, %TeslaState{} = tesla_state) do
     Enum.reduce(get_rules(), %{}, fn rule, conditions ->
-      Map.put(conditions, rule.id, rule.test.(utc_time, tesla_state))
+      test = rule.test.(utc_time, tesla_state)
+      data = rule.data.(utc_time, tesla_state)
+      Map.put(conditions, rule.id, {test, data})
     end)
   end
 
-  @spec publish_msg((TeslaState.t() -> String.t()) | nil, TeslaState.t()) :: :ok
+  @spec publish_msg((TeslaState.t() -> String.t()) | nil, any()) :: :ok
   defp publish_msg(nil, _), do: :ok
 
-  defp publish_msg(msg, %TeslaState{} = state) do
+  defp publish_msg(msg, data) do
     if msg != nil and robotica() do
-      str = msg.(state)
+      str = msg.(data)
       Scrooge.Robotica.publish_message(str)
     end
   end
 
-  @spec check_rule(Rule.t(), boolean(), boolean(), TeslaState.t(), TeslaState.t(), boolean()) ::
-          :ok
-  def check_rule(rule, old, new, %TeslaState{} = old_state, %TeslaState{} = new_state, alert) do
+  @spec check_rule(Rule.t(), {boolean(), any()}, {boolean(), any()}, boolean()) :: :ok
+  def check_rule(rule, {old_test, old_data}, {new_test, new_data}, alert) do
     cond do
-      old == false and new == true -> publish_msg(rule.on_msg, new_state)
-      alert == true and new == true -> publish_msg(rule.alert_msg, new_state)
-      old == true and new == false -> publish_msg(rule.off_msg, old_state)
+      old_test == false and new_test == true -> publish_msg(rule.on_msg, new_data)
+      alert == true and new_test == true -> publish_msg(rule.alert_msg, new_data)
+      old_test == true and new_test == false -> publish_msg(rule.off_msg, old_data)
       true -> :ok
     end
 
@@ -264,21 +270,17 @@ defmodule Scrooge.Tesla do
   @spec check_conditions(
           Conditions.t(),
           Conditions.t(),
-          TeslaState.t(),
-          TeslaState.t(),
           boolean()
         ) :: :ok
   defp check_conditions(
          old_conditions,
          new_conditions,
-         %TeslaState{} = old_state,
-         %TeslaState{} = new_state,
          alert
        ) do
     Enum.each(get_rules(), fn rule ->
       old_value = Map.fetch!(old_conditions, rule.id)
       new_value = Map.fetch!(new_conditions, rule.id)
-      check_rule(rule, old_value, new_value, old_state, new_state, alert)
+      check_rule(rule, old_value, new_value, alert)
     end)
 
     :ok
@@ -288,20 +290,18 @@ defmodule Scrooge.Tesla do
           DateTime.t(),
           Conditions.t(),
           TeslaState.t(),
-          TeslaState.t(),
           keyword()
         ) :: Conditions.t()
   defp robotica_check_all(
          utc_time,
          old_conditions,
-         %TeslaState{} = old_state,
          %TeslaState{} = new_state,
          opts
        ) do
     new_conditions = get_conditions(utc_time, new_state)
 
     if Keyword.get(opts, :silence_alerts, false) == false do
-      :ok = check_conditions(old_conditions, new_conditions, old_state, new_state, false)
+      :ok = check_conditions(old_conditions, new_conditions, false)
     end
 
     new_conditions
@@ -337,7 +337,7 @@ defmodule Scrooge.Tesla do
     new_conditions = get_conditions(utc_now, tesla_state)
 
     if state.silence_alerts == false do
-      :ok = check_conditions(old_conditions, new_conditions, tesla_state, tesla_state, alert)
+      :ok = check_conditions(old_conditions, new_conditions, alert)
     end
 
     %State{state | active_conditions: new_conditions}
@@ -357,7 +357,6 @@ defmodule Scrooge.Tesla do
           robotica_check_all(
             utc_time,
             state.active_conditions,
-            old_state,
             new_state,
             silence_alerts: state.silence_alerts
           )
