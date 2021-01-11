@@ -242,7 +242,7 @@ defmodule Scrooge.Tesla do
         Scrooge.Robotica.publish_message("Lock Tesla.")
 
       old == true and new == false ->
-        Scrooge.Robotica.publish_message("The Tesla is feeling secure.")
+        Scrooge.Robotica.publish_message("The Tesla is not insecure.")
 
       true ->
         nil
