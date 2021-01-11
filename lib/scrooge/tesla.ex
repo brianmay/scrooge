@@ -75,12 +75,13 @@ defmodule Scrooge.Tesla do
             id: atom(),
             test: (DateTime.t(), TeslaState.t() -> boolean()),
             data: (DateTime.t(), TeslaState.t() -> any()),
-            on_msg: (any() -> String.t()) | nil,
-            alert_msg: (any() -> String.t()) | nil,
-            off_msg: (any() -> String.t()) | nil
+            on_msg: (any(), any() -> String.t()) | nil,
+            alert_msg: (any(), any() -> String.t()) | nil,
+            changed_msg: (any(), any() -> String.t()) | nil,
+            off_msg: (any(), any() -> String.t()) | nil
           }
-    @enforce_keys [:id, :test, :data, :on_msg, :alert_msg, :off_msg]
-    defstruct [:id, :test, :data, :on_msg, :alert_msg, :off_msg]
+    @enforce_keys [:id, :test, :data, :on_msg, :alert_msg, :changed_msg, :off_msg]
+    defstruct [:id, :test, :data, :on_msg, :alert_msg, :changed_msg, :off_msg]
   end
 
   def start_link(_) do
@@ -206,33 +207,37 @@ defmodule Scrooge.Tesla do
         id: :geofence,
         test: fn _, tesla_state -> tesla_state.geofence != nil end,
         data: fn _, tesla_state -> tesla_state.geofence end,
-        on_msg: fn data -> "The Tesla arrived at #{data}" end,
+        on_msg: fn _, new -> "The Tesla arrived at #{new}" end,
         alert_msg: nil,
-        off_msg: fn data -> "The Tesla departed from #{data}." end
+        changed_msg: fn old, new -> "The Tesla moved from #{old} to #{new}" end,
+        off_msg: fn old, _ -> "The Tesla departed from #{old}." end
       },
       %Rule{
         id: :plugged_in,
         test: fn _, tesla_state -> tesla_state.plugged_in == true end,
         data: fn _, _ -> nil end,
-        on_msg: fn _ -> "The Tesla is plugged in" end,
+        on_msg: fn _, _ -> "The Tesla is plugged in" end,
         alert_msg: nil,
-        off_msg: fn _ -> "The Tesla is disconnected." end
+        changed_msg: nil,
+        off_msg: fn _, _ -> "The Tesla is disconnected." end
       },
       %Rule{
         id: :insecure,
         test: fn utc_time, tesla_state -> test_insecure(utc_time, tesla_state) end,
         data: fn _, _ -> nil end,
-        on_msg: fn _ -> "The Tesla is feeling insecure." end,
-        alert_msg: fn _ -> "Lock the Tesla." end,
-        off_msg: fn _ -> "The Tesla is not insecure." end
+        on_msg: fn _, _ -> "The Tesla is feeling insecure." end,
+        alert_msg: fn _, _ -> "Lock the Tesla." end,
+        changed_msg: nil,
+        off_msg: fn _, _ -> "The Tesla is not insecure." end
       },
       %Rule{
         id: :plug_in_required,
         test: fn utc_time, tesla_state -> test_plug_in_required(utc_time, tesla_state) end,
         data: fn _, _ -> nil end,
-        on_msg: fn _ -> "The Tesla requires plugging in." end,
-        alert_msg: fn _ -> "Plug in the Tesla." end,
-        off_msg: fn _ -> "The Tesla no longer requires plugging in." end
+        on_msg: fn _, _ -> "The Tesla requires plugging in." end,
+        alert_msg: fn _, _ -> "Plug in the Tesla." end,
+        changed_msg: nil,
+        off_msg: fn _, _ -> "The Tesla no longer requires plugging in." end
       }
     ]
 
@@ -245,23 +250,33 @@ defmodule Scrooge.Tesla do
     end)
   end
 
-  @spec publish_msg((TeslaState.t() -> String.t()) | nil, any()) :: :ok
-  defp publish_msg(nil, _), do: :ok
+  @spec publish_msg((TeslaState.t() -> String.t()) | nil, any(), any()) :: :ok
+  defp publish_msg(nil, _, _), do: :ok
 
-  defp publish_msg(msg, data) do
-    if msg != nil and robotica() do
-      str = msg.(data)
+  defp publish_msg(msg, old, new) do
+    str = msg.(old, new)
+    Logger.info(str)
+
+    if robotica() do
       Scrooge.Robotica.publish_message(str)
     end
   end
 
   @spec check_rule(Rule.t(), {boolean(), any()}, {boolean(), any()}, boolean()) :: :ok
-  def check_rule(rule, {old_test, old_data}, {new_test, new_data}, alert) do
+  def check_rule(rule, {old_test, old_data}, {true, new_data}, alert) do
     cond do
-      old_test == false and new_test == true -> publish_msg(rule.on_msg, new_data)
-      alert == true and new_test == true -> publish_msg(rule.alert_msg, new_data)
-      old_test == true and new_test == false -> publish_msg(rule.off_msg, old_data)
+      old_test == false -> publish_msg(rule.on_msg, old_data, new_data)
+      old_data != new_data -> publish_msg(rule.changed_msg, old_data, new_data)
+      alert == true -> publish_msg(rule.alert_msg, old_data, new_data)
       true -> :ok
+    end
+
+    :ok
+  end
+
+  def check_rule(rule, {old_test, old_data}, {false, new_data}, _alert) do
+    if old_test == true do
+      publish_msg(rule.off_msg, old_data, new_data)
     end
 
     :ok

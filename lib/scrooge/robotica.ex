@@ -27,8 +27,6 @@ defmodule Scrooge.Robotica do
 
   @spec publish_message(String.t()) :: :ok | {:error, String.t()}
   def publish_message(message) do
-    Logger.info("Robotica message #{message}")
-
     action = %{
       "locations" => ["Brian"],
       "action" => %{
