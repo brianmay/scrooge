@@ -50,7 +50,7 @@ defmodule Scrooge.Aemo.Prices do
     end
   end
 
-  def price_protection_hedging(_l_dt) do
+  def price_protection_hedging(l_dt) do
     cond do
       Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.7000
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.5000
@@ -67,7 +67,7 @@ defmodule Scrooge.Aemo.Prices do
     end
   end
 
-  def aemo_annual(_l_dt) do
+  def aemo_annual(l_dt) do
     cond do
       Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 106
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 118
