@@ -1,5 +1,6 @@
 defmodule Scrooge.Aemo.Prices do
   @moduledoc false
+  # All prices here exclude GST
 
   def carbon_neutral_offset(l_dt) do
     # check
@@ -24,10 +25,10 @@ defmodule Scrooge.Aemo.Prices do
     end
   end
 
-  def network_tarif(_, l_dt) do
+  def network_tarifs(_, l_dt) do
     # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
     # "Schedule of Tariffs"
-    {peak, shoulder, off_peak} =
+    {_peak, _shoulder, _off_peak} =
       cond do
         Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> {13.9316, 10.9293, 4.1243}
         Date.compare(l_dt, ~D[2021-01-01]) in [:eq, :gt] -> {14.8340, 11.5662, 4.3576}
@@ -35,6 +36,10 @@ defmodule Scrooge.Aemo.Prices do
         Date.compare(l_dt, ~D[2019-01-01]) in [:eq, :gt] -> {0.0000, 10.7419, 3.9028}
         Date.compare(l_dt, ~D[2018-01-01]) in [:eq, :gt] -> {0.0000, 10.1890, 3.0724}
       end
+  end
+
+  def network_tarif(meter, l_dt) do
+    {peak, shoulder, off_peak} = network_tarifs(meter, l_dt)
 
     day_of_week = Date.day_of_week(l_dt)
 
