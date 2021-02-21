@@ -18,9 +18,8 @@ defmodule Scrooge.Aemo.Prices do
   end
 
   def market_charges(l_dt) do
-    # check
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.0715
+      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.0650
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.0650
     end
   end
@@ -93,9 +92,8 @@ defmodule Scrooge.Aemo.Prices do
   def meter_annual_charges(l_dt) do
     # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
     # "Schedule of Prescribed Metering"
-    # check
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 35.05 * 100
+      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 71.38 * 100
       Date.compare(l_dt, ~D[2019-01-01]) in [:eq, :gt] -> 57.80 * 100
       Date.compare(l_dt, ~D[2018-01-01]) in [:eq, :gt] -> 60.80 * 100
     end
