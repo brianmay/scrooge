@@ -37,7 +37,6 @@ config :scrooge, ScroogeWeb.Endpoint,
   url: [host: "localhost", port: port],
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: ScroogeWeb.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Scrooge.PubSub, adapter: Phoenix.PubSub.PG2],
   live_view: [
     signing_salt: System.get_env("SIGNING_SALT")
   ]

@@ -26,6 +26,7 @@ defmodule Scrooge.Application do
       Scrooge.TeNerves,
       # Start the endpoint when the application starts
       ScroogeWeb.Endpoint,
+      {Phoenix.PubSub, [name: Scrooge.PubSub, adapter: Phoenix.PubSub.PG2]},
       # Start Aemo process
       {Scrooge.Aemo, []},
       # Start MQTT processes
