@@ -210,7 +210,7 @@ defmodule Scrooge.Aemo do
         carbon_neutral_offset = Prices.carbon_neutral_offset(local_period)
         environmental_certificate_cost = Prices.environmental_certificate_cost(local_period)
         market_charges = Prices.market_charges(local_period)
-        price_protection_hedging = Prices.price_protection_hedging(local_period)
+        price_protection_hedging = Prices.amber_price_protection_hedging(local_period)
         loss_factor = Prices.loss_factor(local_period)
 
         prices =

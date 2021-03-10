@@ -3,23 +3,22 @@ defmodule Scrooge.Aemo.Prices do
   # All prices here exclude GST
 
   def carbon_neutral_offset(l_dt) do
-    # check
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.1100
-      Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.1100
+      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.1000
+      Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.1000
     end
   end
 
   def environmental_certificate_cost(l_dt) do
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 2.5563
+      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 2.3810
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 1.6130
     end
   end
 
   def market_charges(l_dt) do
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.0650
+      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.2260
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.0650
     end
   end
@@ -54,7 +53,11 @@ defmodule Scrooge.Aemo.Prices do
     end
   end
 
-  def price_protection_hedging(l_dt) do
+  def amber_annual(_l_dt) do
+    120
+  end
+
+  def amber_price_protection_hedging(l_dt) do
     cond do
       Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.7000
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.5000
