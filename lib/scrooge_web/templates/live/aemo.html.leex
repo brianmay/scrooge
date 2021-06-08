@@ -1,24 +1,30 @@
 <%= if is_nil(@aemo_state) do %>
-<p>No Data</p>
+  <p>No Data</p>
 <% else %>
+  <form phx-change="meter">
+    <select name="meter">
+      <option value="">None</option>
+      <%= for meter <- @meters do %>
+        <option
+          value="<%= meter %>"
+          <%= if meter == @meter do %>
+            selected="True"
+          <% end %>
+        >
+          <%= meter %>
+        </option>
+      <% end %>
+    </select>
+  </form>
 
-<form phx-change="meter">
-  <select name="meter">
-    <option value="">None</option>
-    <%= for meter <- @meters do %>
-        <option value="<%= meter %>" <%= if meter == @meter do %>selected="True"<% end %>><%= meter %></option>
-    <% end %>
-  </select>
-</form>
-
-<table class="table">
-  <tbody>
-    <tr>
-      <td>currentNEMtime</td>
-      <td><%= date_time_to_local(@aemo_state["currentNEMtime"]) %></td>
-    </tr>
-  </tbody>
-</table>
+  <table class="table">
+    <tbody>
+      <tr>
+        <td>currentNEMtime</td>
+        <td><%= date_time_to_local(@aemo_state["currentNEMtime"]) %></td>
+      </tr>
+    </tbody>
+  </table>
 
   <h2>Prices</h2>
   <table class="table table-striped table-hover">
@@ -27,75 +33,113 @@
         <th>Period</th>
         <th>Type</th>
         <%= if not is_nil(@meter) do %>
-        <th class="number">Price (<%= @meter %>)</th>
+          <th class="number">Price (<%= @meter %>)</th>
         <% end %>
       </tr>
     </thead>
     <tbody>
       <%= for data <- @aemo_state["variablePrices"] do %>
-          <% dt = date_time_to_str(data["period"]) %>
-          <tr class="<%= data["PERIODTYPE"] %>"  phx-click="period" phx-value-period="<%= dt %>">
-            <% meter_data = data["prices"][@meter] %>
-            <td><%= date_time_to_local(data["period"]) %></td>
-            <td><%= aemo_price_type(data["PERIODTYPE"]) %></td>
-            <%= if not is_nil(@meter) do %>
+        <% dt = date_time_to_str(data["period"]) %>
+        <tr
+          class="<%= data["PERIODTYPE"] %>"
+          phx-click="period"
+          phx-value-period="<%= dt %>"
+        >
+          <% meter_data = data["prices"][@meter] %>
+          <td><%= date_time_to_local(data["period"]) %></td>
+          <td><%= aemo_price_type(data["PERIODTYPE"]) %></td>
+          <%= if not is_nil(@meter) do %>
             <td class="expandable">
-              <div class="number"><%= format_cents(meter_data.total_gst_price) %></div>
+              <div class="number">
+                <%= format_cents(meter_data.total_gst_price) %>
+              </div>
               <%= if not is_nil(@period) do %>
-              <%= if DateTime.compare(data["period"], @period) == :eq do %>
-              <table class="table price-details">
-                <tbody>
-                  <tr>
-                    <td>Carbon Neutral Offset</td>
-                    <td class="number"><%= Float.round(meter_data.carbon_neutral_offset, 2) %>
-                  </tr>
-                  <tr>
-                    <td>Environmental Certificate Cost</td>
-                    <td class="number"><%= Float.round(meter_data.environmental_certificate_cost, 2) %>
-                  </tr>
-                  <tr>
-                    <td>Market Charges</td>
-                    <td class="number"><%= Float.round(meter_data.market_charges, 2) %>
-                  </tr>
-                  <tr>
-                    <td>Price Protection Hedging</td>
-                    <td class="number"><%= Float.round(meter_data.price_protection_hedging, 2) %>
-                  </tr>
-                  <tr>
-                    <td>Network Tarif</td>
-                    <td class="number"><%= Float.round(meter_data.network_tarif, 2) %>
-                  </tr>
-                  <tr>
-                    <td>Total Fixed</td>
-                    <td class="number"><%= Float.round(meter_data.total_fixed, 2) %>
-                  </tr>
-                  <tr>
-                    <td>Wholesale Price</td>
-                    <td class="number"><%= Float.round(meter_data.wholesale_price, 2) %>
-                  </tr>
-                  <tr>
-                    <td>Loss (<%= meter_data.loss_factor %>)</td>
-                    <td class="number"><%= Float.round(meter_data.loss, 2) %>
-                  </tr>
-                  <tr>
-                    <td>Total Wholesale</td>
-                    <td class="number"><%= Float.round(meter_data.total_wholesale, 2) %>
-                  </tr>
-                  <tr>
-                    <td>GST</td>
-                    <td class="number"><%= Float.round(meter_data.gst, 2) %>
-                  </tr>
-                  <tr>
-                    <td>Total</td>
-                    <td class="number"><%= Float.round(meter_data.total_gst_price, 2) %>
-                  </tr>
-                </tbody>
-              </table>
-              <% end %>
+                <%= if DateTime.compare(data["period"], @period) == :eq do %>
+                  <table class="table price-details">
+                    <tbody>
+                      <tr>
+                        <td>Carbon Neutral Offset</td>
+                        <td class="number">
+                          <%= Float.round(meter_data.carbon_neutral_offset, 2) %>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Environmental Certificate Cost</td>
+                        <td class="number">
+                          <%= Float.round(meter_data.environmental_certificate_cost, 2) %>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Market Charges</td>
+                        <td class="number">
+                          <%= Float.round(meter_data.market_charges, 2) %>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Price Protection Hedging</td>
+                        <td class="number">
+                          <%= Float.round(meter_data.price_protection_hedging, 2) %>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Network Tarif</td>
+                        <td class="number">
+                          <%= Float.round(meter_data.network_tarif, 2) %>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Total Fixed</td>
+                        <td class="number">
+                          <%= Float.round(meter_data.total_fixed, 2) %>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Wholesale Price</td>
+                        <td class="number">
+                          <%= Float.round(meter_data.wholesale_price, 2) %>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Loss (<%= meter_data.loss_factor %>)</td>
+                        <td class="number">
+                          <%= Float.round(meter_data.loss, 2) %>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Total Wholesale</td>
+                        <td class="number">
+                          <%= Float.round(meter_data.total_wholesale, 2) %>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>GST</td>
+                        <td class="number">
+                          <%= Float.round(meter_data.gst, 2) %>
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Total</td>
+                        <td class="number">
+                          <%= Float.round(meter_data.total_gst_price, 2) %>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                <% end %>
               <% end %>
             </td>
-            <% end %>
-          </tr>
+          <% end %>
+        </tr>
       <% end %>
     </tbody>
   </table>

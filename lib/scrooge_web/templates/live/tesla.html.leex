@@ -1,144 +1,152 @@
-<link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
-      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-      crossorigin=""/>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+  integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+  crossorigin=""
+/>
 
- <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
-         integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
-         crossorigin="">
- </script>
+<script
+  src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+  integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+  crossorigin=""
+></script>
 
-<script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
-<link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css' rel='stylesheet' />
+<script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js"></script>
+<link
+  href="https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css"
+  rel="stylesheet"
+/>
 
 <%= inspect @tesla_state %>
 <%= inspect @active_conditions %>
 
 <%= if map_size(@tesla_state) > 0 do %>
-<table class="table">
-  <tbody>
-    <%= if valid(@tesla_state.since) do %>
-    <tr>
-      <th>Last Update time</th>
-      <td><%= @tesla_state.since |> date_time_to_local() %></td>
-    </tr>
-    <% end %>
+  <table class="table">
+    <tbody>
+      <%= if valid(@tesla_state.since) do %>
+        <tr>
+          <th>Last Update time</th>
+          <td><%= @tesla_state.since |> date_time_to_local() %></td>
+        </tr>
+      <% end %>
 
-    <%= if valid(@tesla_state.latitude) and valid(@tesla_state.longitude) do %>
-    <tr>
-      <th>Location</th>
-      <td>
-        <%= location_link(@tesla_state.latitude, @tesla_state.longitude) %>
-      </td>
-    </tr>
-    <% end %>
+      <%= if valid(@tesla_state.latitude) and valid(@tesla_state.longitude) do %>
+        <tr>
+          <th>Location</th>
+          <td>
+            <%= location_link(@tesla_state.latitude, @tesla_state.longitude) %>
+          </td>
+        </tr>
+      <% end %>
 
-    <%= if valid(@tesla_state.speed) and valid(@tesla_state.heading)do %>
-    <tr>
-      <th>Speed / heading</th>
-      <td><%= format_speed(@tesla_state.speed) %> / <%= @tesla_state.heading %></td>
-    </tr>
-    <% end %>
+      <%= if valid(@tesla_state.speed) and valid(@tesla_state.heading) do %>
+        <tr>
+          <th>Speed / heading</th>
+          <td>
+            <%= format_speed(@tesla_state.speed) %> /
+            <%= @tesla_state.heading %>
+          </td>
+        </tr>
+      <% end %>
 
-    <%= if valid(@tesla_state.doors_open) do %>
-    <tr>
-      <th>Doors</th>
-      <td>
-        <%= door_state(@tesla_state.doors_open) %>
-      </td>
-    </tr>
-    <% end %>
+      <%= if valid(@tesla_state.doors_open) do %>
+        <tr>
+          <th>Doors</th>
+          <td>
+            <%= door_state(@tesla_state.doors_open) %>
+          </td>
+        </tr>
+      <% end %>
 
-    <%= if valid(@tesla_state.trunk_open) do %>
-    <tr>
-      <th>Trunk</th>
-      <td>
-        <%= door_state(@tesla_state.trunk_open) %>
-      </td>
-    </tr>
-    <% end %>
+      <%= if valid(@tesla_state.trunk_open) do %>
+        <tr>
+          <th>Trunk</th>
+          <td>
+            <%= door_state(@tesla_state.trunk_open) %>
+          </td>
+        </tr>
+      <% end %>
 
-    <%= if valid(@tesla_state.frunk_open) do %>
-    <tr>
-      <th>Frunk</th>
-      <td>
-        <%= door_state(@tesla_state.frunk_open) %>
-      </td>
-    </tr>
-    <% end %>
+      <%= if valid(@tesla_state.frunk_open) do %>
+        <tr>
+          <th>Frunk</th>
+          <td>
+            <%= door_state(@tesla_state.frunk_open) %>
+          </td>
+        </tr>
+      <% end %>
 
-    <%= if valid(@tesla_state.windows_open) do %>
-    <tr>
-      <th>Windows</th>
-      <td>
-        <%= door_state(@tesla_state.windows_open) %>
-      </td>
-    </tr>
-    <% end %>
+      <%= if valid(@tesla_state.windows_open) do %>
+        <tr>
+          <th>Windows</th>
+          <td>
+            <%= door_state(@tesla_state.windows_open) %>
+          </td>
+        </tr>
+      <% end %>
 
-    <%= if valid(@tesla_state.plugged_in) do %>
-    <tr>
-      <th>Plugged In</th>
-      <td>
-        <%= @tesla_state.plugged_in %>
-      </td>
-    </tr>
-    <% end %>
+      <%= if valid(@tesla_state.plugged_in) do %>
+        <tr>
+          <th>Plugged In</th>
+          <td>
+            <%= @tesla_state.plugged_in %>
+          </td>
+        </tr>
+      <% end %>
 
-    <%= if valid(@tesla_state.geofence) do %>
-    <tr>
-      <th>Geofence</th>
-      <td>
-        <%= @tesla_state.geofence %>
-      </td>
-    </tr>
-    <% end %>
+      <%= if valid(@tesla_state.geofence) do %>
+        <tr>
+          <th>Geofence</th>
+          <td>
+            <%= @tesla_state.geofence %>
+          </td>
+        </tr>
+      <% end %>
 
-    <%= if valid(@tesla_state.is_user_present) do %>
-    <tr>
-      <th>Is User Present</th>
-      <td>
-        <%= @tesla_state.is_user_present %>
-      </td>
-    <% end %>
+      <%= if valid(@tesla_state.is_user_present) do %>
+        <tr>
+          <th>Is User Present</th>
+          <td>
+            <%= @tesla_state.is_user_present %>
+          </td>
+        </tr>
+      <% end %>
 
+      <%= if valid(@tesla_state.locked) do %>
+        <tr>
+          <th>Locked</th>
+          <td>
+            <%= @tesla_state.locked %>
+            <%= if @tesla_state.unlocked_time do %>
+              at <%= @tesla_state.unlocked_time |> date_time_to_local() %>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
 
-    <%= if valid(@tesla_state.locked) do %>
-    <tr>
-      <th>Locked</th>
-      <td>
-        <%= @tesla_state.locked %>
-        <%= if @tesla_state.unlocked_time do %>
-          at <%= @tesla_state.unlocked_time |> date_time_to_local() %></td>
-        <% end %>
-      </td>
-    </tr>
+  <%= if valid(@tesla_state.latitude) and valid(@tesla_state.longitude) and valid(@tesla_state.heading) do %>
+    <div
+      phx-hook="Map"
+      data-latitude="<%= @tesla_state.latitude %>"
+      data-longitude="<%= @tesla_state.longitude %>"
+      data-heading="<%= @tesla_state.heading %>"
+      data-door-df="false"
+      data-door-dr="false"
+      data-door-pf="false"
+      data-door-pr="false"
+      data-door-ft="false"
+      data-door-rt="false"
+      id="map"
+    ></div>
 
-    <% end %>
-  <tbody>
-</table>
+    <div phx-update="ignore">
+      <div id="mapid"></div>
+    </div>
 
-<%= if valid(@tesla_state.latitude) and valid(@tesla_state.longitude) and valid(@tesla_state.heading) do %>
-<div phx-hook="Map"
-     data-latitude=<%= @tesla_state.latitude %>
-     data-longitude=<%= @tesla_state.longitude %>
-     data-heading=<%= @tesla_state.heading %>
-     data-door-df=false
-     data-door-dr=false
-     data-door-pf=false
-     data-door-pr=false
-     data-door-ft=false
-     data-door-rt=false
-     id="map"
->
-</div>
-
-<div phx-update="ignore">
-  <div id="mapid"></div>
-</div>
-
-<div phx-hook="MapDetails" style="display: none;" id="map-details">
-    <div id="details">
+    <div phx-hook="MapDetails" style="display: none;" id="map-details">
+      <div id="details">
         <table class="table">
           <tbody>
             <tr>
@@ -148,15 +156,16 @@
 
             <tr>
               <th>Speed / heading</th>
-              <td><%= format_speed(@tesla_state.speed) %> / <%= @tesla_state.heading %></td>
+              <td>
+                <%= format_speed(@tesla_state.speed) %> /
+                <%= @tesla_state.heading %>
+              </td>
             </tr>
-
           </tbody>
         </table>
+      </div>
     </div>
-</div>
-<% end %>
-
+  <% end %>
 <% else %>
-No state date found.
+  No state date found.
 <% end %>

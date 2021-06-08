@@ -10,18 +10,18 @@
     </tr>
   </thead>
   <tbody>
-<%= for user <- @users do %>
-    <tr>
-      <td><%= user.username %></td>
-      <td><%= user.is_admin %></td>
+    <%= for user <- @users do %>
+      <tr>
+        <td><%= user.username %></td>
+        <td><%= user.is_admin %></td>
 
-      <td>
-        <span><%= link "Show", to: Routes.user_path(@conn, :show, user), class: "btn btn-secondary" %></span>
-        <span><%= link "Edit", to: Routes.user_path(@conn, :edit, user), class: "btn btn-secondary" %></span>
-        <span><%= link "Delete", to: Routes.user_path(@conn, :delete, user), method: :delete, class: "btn btn-danger", data: [confirm: "Are you sure?"] %></span>
-      </td>
-    </tr>
-<% end %>
+        <td>
+          <span><%= link "Show", to: Routes.user_path(@conn, :show, user), class: "btn btn-secondary" %></span>
+          <span><%= link "Edit", to: Routes.user_path(@conn, :edit, user), class: "btn btn-secondary" %></span>
+          <span><%= link "Delete", to: Routes.user_path(@conn, :delete, user), method: :delete, class: "btn btn-danger", data: [confirm: "Are you sure?"] %></span>
+        </td>
+      </tr>
+    <% end %>
   </tbody>
 </table>
 
