@@ -67,6 +67,8 @@ jobs:
           npm run deploy --prefix assets
       - name: Check Formatting
         run: mix format --check-formatted
+      - name: Check Prettier
+        run: mix prettier
       - name: Run Credo
         run: mix credo --strict
       - name: Run Tests
