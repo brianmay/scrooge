@@ -121,6 +121,7 @@ jobs:
   setup-build-publish-deploy:
     name: Setup, Build, Publish, and Deploy
     runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'brianmay' }}
     needs:
       - test
       - dialyzer
