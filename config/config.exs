@@ -10,7 +10,7 @@ use Mix.Config
 config :elixir, :time_zone_database, Tzdata.TimeZoneDatabase
 
 config :scrooge,
-  ecto_repos: [Scrooge.Repo, Scrooge.TeNerves],
+  ecto_repos: [Scrooge.Repo],
   mqtt_host: System.get_env("MQTT_HOST"),
   mqtt_port: String.to_integer(System.get_env("MQTT_PORT") || "8883"),
   ca_cert_file: System.get_env("MQTT_CA_CERT_FILE"),
@@ -23,10 +23,6 @@ config :scrooge,
 
 config :scrooge, Scrooge.Repo,
   url: System.get_env("DATABASE_URL"),
-  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
-
-config :scrooge, Scrooge.TeNerves,
-  url: System.get_env("TENERVES_URL"),
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
 port = String.to_integer(System.get_env("PORT") || "4000")

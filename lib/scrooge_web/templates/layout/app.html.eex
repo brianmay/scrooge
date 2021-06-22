@@ -42,7 +42,6 @@
               </a>
               <div class="dropdown-menu">
                 <%= link("Tesla", to: Routes.page_path(@conn, :tesla), class: "dropdown-item") %>
-                <%= link("Usage", to: Routes.page_path(@conn, :tesla_usage), class: "dropdown-item") %>
               </div>
             </li>
             <%= if Scrooge.Auth.user_is_admin?(@conn) do %>
