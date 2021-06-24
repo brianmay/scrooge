@@ -293,7 +293,7 @@ defmodule Scrooge.Tesla do
          alert
        ) do
     Enum.each(get_rules(), fn rule ->
-      old_value = Map.fetch!(old_conditions, rule.id)
+      old_value = Map.get(old_conditions, rule.id)
       new_value = Map.fetch!(new_conditions, rule.id)
       check_rule(rule, old_value, new_value, alert)
     end)
