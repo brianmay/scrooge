@@ -263,6 +263,8 @@ defmodule Scrooge.Tesla do
   end
 
   @spec check_rule(Rule.t(), {boolean(), any()}, {boolean(), any()}, boolean()) :: :ok
+  def check_rule(rule, nil, {true, new_data}, alert), do: :ok
+
   def check_rule(rule, {old_test, old_data}, {true, new_data}, alert) do
     cond do
       old_test == false -> publish_msg(rule.on_msg, old_data, new_data)
