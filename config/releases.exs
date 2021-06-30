@@ -25,3 +25,17 @@ config :scrooge, ScroogeWeb.Endpoint,
   live_view: [
     signing_salt: System.get_env("SIGNING_SALT")
   ]
+
+config :libcluster,
+  topologies: [
+    k8s: [
+      strategy: Elixir.Cluster.Strategy.Kubernetes,
+      config: [
+        mode: :dns,
+        kubernetes_node_basename: "scrooge",
+        kubernetes_selector: System.get_env("KUBERNETES_SELECTOR"),
+        kubernetes_namespace: System.get_env("NAMESPACE"),
+        polling_interval: 10_000
+      ]
+    ]
+  ]

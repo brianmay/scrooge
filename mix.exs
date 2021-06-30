@@ -50,6 +50,7 @@ defmodule Scrooge.MixProject do
       {:phoenix_live_view, "~> 0.15.4"},
       {:timex, "~> 3.5"},
       {:mojito, "~> 0.7.1"},
+      {:libcluster, "~> 3.3"},
       {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false}
     ]

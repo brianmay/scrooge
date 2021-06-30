@@ -12,6 +12,8 @@ defmodule Scrooge.Application do
   end
 
   def start(_type, _args) do
+    topologies = Application.get_env(:libcluster, :topologies)
+
     # List all child processes to be supervised
 
     mqtt_host = Application.get_env(:scrooge, :mqtt_host)
@@ -21,6 +23,7 @@ defmodule Scrooge.Application do
     password = Application.get_env(:scrooge, :mqtt_password)
 
     children = [
+      {Cluster.Supervisor, [topologies, [name: Scrooge.ClusterSupervisor]]},
       # Start the Ecto repository
       Scrooge.Repo,
       # Start the endpoint when the application starts
