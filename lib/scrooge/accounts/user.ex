@@ -3,6 +3,16 @@ defmodule Scrooge.Accounts.User do
   use Ecto.Schema
   import Ecto.Changeset
 
+  @type t :: %__MODULE__{
+          username: String.t(),
+          password: String.t(),
+          password_confirmation: String.t(),
+          password_hash: binary(),
+          is_admin: boolean,
+          inserted_at: DateTime.t(),
+          updated_at: DateTime.t()
+        }
+
   schema "users" do
     field :username, :string
     field :password, :string, virtual: true

@@ -2,11 +2,14 @@ defmodule ScroogeWeb.Live.Tesla do
   @moduledoc "Live view for Tesla"
   use Phoenix.LiveView
 
+  import ScroogeWeb.LiveHelpers
+
   def render(assigns) do
     ScroogeWeb.LiveView.render("tesla.html", assigns)
   end
 
-  def mount(_params, _session, socket) do
+  def mount(_params, session, socket) do
+    socket = assign_defaults(socket, session)
     Scrooge.Tesla.register(self())
     {active_conditions, tesla_state} = Scrooge.Tesla.get_tesla_state()
     socket = assign(socket, :tesla_state, tesla_state)
