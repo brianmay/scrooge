@@ -3,7 +3,7 @@ defmodule Scrooge.Aemo do
 
   use GenServer
   require Logger
-  alias Scrooge.Aemo.Prices
+  alias Scrooge.Aemo.Rates
 
   defmodule State do
     @moduledoc false
@@ -36,9 +36,12 @@ defmodule Scrooge.Aemo do
   end
 
   def init(_opts) do
-    state =
-      %State{aemo_state: nil, scenes: [], timer: nil, next_time: nil}
-      |> set_timer()
+    state = %State{
+      aemo_state: nil,
+      scenes: [],
+      timer: Process.send_after(self(), :timer, 0),
+      next_time: DateTime.utc_now()
+    }
 
     {:ok, state}
   end
@@ -207,21 +210,16 @@ defmodule Scrooge.Aemo do
         local_period = dt_to_local_time(utc_period)
         wholesale_price = entry["RRP"] / 1000 * 100
 
-        carbon_neutral_offset = Prices.carbon_neutral_offset(local_period)
-        environmental_certificate_cost = Prices.environmental_certificate_cost(local_period)
-        market_charges = Prices.market_charges(local_period)
-        price_protection_hedging = Prices.amber_price_protection_hedging(local_period)
-        loss_factor = Prices.loss_factor(local_period)
+        rates = Rates.get_rates("3787", local_period)
 
         prices =
           Enum.map(meters, fn meter ->
-            network_tarif = Prices.network_tarif(meter, local_period)
-
             total_fixed =
-              carbon_neutral_offset + environmental_certificate_cost + market_charges +
-                price_protection_hedging + network_tarif
+              rates.carbon_neutral_offset + rates.environmental_certificate_cost +
+                rates.market_charges +
+                rates.amber_price_protection_hedging + rates.network_tarif
 
-            total_wholesale = loss_factor * wholesale_price
+            total_wholesale = rates.loss_factor * wholesale_price
             loss = total_wholesale - wholesale_price
             price = total_fixed + total_wholesale
 
@@ -229,15 +227,15 @@ defmodule Scrooge.Aemo do
             gst = total_gst_price - price
 
             values = %{
-              carbon_neutral_offset: carbon_neutral_offset,
-              environmental_certificate_cost: environmental_certificate_cost,
-              market_charges: market_charges,
-              price_protection_hedging: price_protection_hedging,
-              network_tarif: network_tarif,
+              carbon_neutral_offset: rates.carbon_neutral_offset,
+              environmental_certificate_cost: rates.environmental_certificate_cost,
+              market_charges: rates.market_charges,
+              price_protection_hedging: rates.amber_price_protection_hedging,
+              network_tarif: rates.network_tarif,
               total_fixed: total_fixed,
               wholesale_price: wholesale_price,
               loss: loss,
-              loss_factor: loss_factor,
+              loss_factor: rates.loss_factor,
               total_wholesale: total_wholesale,
               gst: gst,
               total_gst_price: total_gst_price

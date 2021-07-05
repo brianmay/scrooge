@@ -1,29 +1,82 @@
-defmodule Scrooge.Aemo.Prices do
+defmodule Scrooge.Aemo.Rates do
   @moduledoc false
   # All prices here exclude GST
 
-  def carbon_neutral_offset(l_dt) do
+  @type price :: float()
+  @type t :: %__MODULE__{
+          carbon_neutral_offset: price(),
+          environmental_certificate_cost: price(),
+          market_charges: price(),
+          network_tarif: price(),
+          amber_annual: price(),
+          amber_price_protection_hedging: price(),
+          loss_factor: float(),
+          aemo_annual: price(),
+          distribution_annual_charges: price(),
+          meter_annual_charges: price()
+        }
+  @enforce_keys [
+    :carbon_neutral_offset,
+    :environmental_certificate_cost,
+    :market_charges,
+    :network_tarif,
+    :amber_annual,
+    :amber_price_protection_hedging,
+    :loss_factor,
+    :aemo_annual,
+    :distribution_annual_charges,
+    :meter_annual_charges
+  ]
+  defstruct [
+    :carbon_neutral_offset,
+    :environmental_certificate_cost,
+    :market_charges,
+    :network_tarif,
+    :amber_annual,
+    :amber_price_protection_hedging,
+    :loss_factor,
+    :aemo_annual,
+    :distribution_annual_charges,
+    :meter_annual_charges
+  ]
+
+  def get_rates("3787", local_datetime) do
+    %__MODULE__{
+      carbon_neutral_offset: carbon_neutral_offset(local_datetime),
+      environmental_certificate_cost: environmental_certificate_cost(local_datetime),
+      market_charges: market_charges(local_datetime),
+      network_tarif: network_tarif(local_datetime),
+      amber_annual: amber_annual(local_datetime),
+      amber_price_protection_hedging: amber_price_protection_hedging(local_datetime),
+      loss_factor: loss_factor(local_datetime),
+      aemo_annual: aemo_annual(local_datetime),
+      distribution_annual_charges: distribution_annual_charges(local_datetime),
+      meter_annual_charges: meter_annual_charges(local_datetime)
+    }
+  end
+
+  defp carbon_neutral_offset(l_dt) do
     cond do
       Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.1000
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.1000
     end
   end
 
-  def environmental_certificate_cost(l_dt) do
+  defp environmental_certificate_cost(l_dt) do
     cond do
       Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 2.3810
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 1.6130
     end
   end
 
-  def market_charges(l_dt) do
+  defp market_charges(l_dt) do
     cond do
       Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.2260
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.0650
     end
   end
 
-  def network_tarifs(_, l_dt) do
+  defp network_tarifs(l_dt) do
     # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
     # "Schedule of Tariffs"
     {_peak, _shoulder, _off_peak} =
@@ -36,8 +89,8 @@ defmodule Scrooge.Aemo.Prices do
       end
   end
 
-  def network_tarif(meter, l_dt) do
-    {peak, shoulder, off_peak} = network_tarifs(meter, l_dt)
+  defp network_tarif(l_dt) do
+    {peak, shoulder, off_peak} = network_tarifs(l_dt)
 
     day_of_week = Date.day_of_week(l_dt)
 
@@ -53,18 +106,18 @@ defmodule Scrooge.Aemo.Prices do
     end
   end
 
-  def amber_annual(_l_dt) do
+  defp amber_annual(_l_dt) do
     120
   end
 
-  def amber_price_protection_hedging(l_dt) do
+  defp amber_price_protection_hedging(l_dt) do
     cond do
       Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.7000
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.5000
     end
   end
 
-  def loss_factor(l_dt) do
+  defp loss_factor(l_dt) do
     # https://aemo.com.au/energy-systems/electricity/national-electricity-market-nem/market-operations/loss-factors-and-regional-boundaries
     # "Distribution Loss Factors for the 2020-21 Financial Year"
     cond do
@@ -74,14 +127,14 @@ defmodule Scrooge.Aemo.Prices do
     end
   end
 
-  def aemo_annual(l_dt) do
+  defp aemo_annual(l_dt) do
     cond do
       Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 106
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 118
     end
   end
 
-  def distribution_annual_charges(l_dt) do
+  defp distribution_annual_charges(l_dt) do
     # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
     # " Schedule of Tariffs"
 
@@ -92,7 +145,7 @@ defmodule Scrooge.Aemo.Prices do
     end
   end
 
-  def meter_annual_charges(l_dt) do
+  defp meter_annual_charges(l_dt) do
     # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
     # "Schedule of Prescribed Metering"
     cond do
