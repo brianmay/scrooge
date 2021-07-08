@@ -57,22 +57,22 @@ defmodule Scrooge.Aemo.Rates do
 
   defp carbon_neutral_offset(l_dt) do
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.1000
+      Date.compare(l_dt, ~D[2021-03-01]) in [:eq, :gt] -> 0.1000
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.1000
     end
   end
 
   defp environmental_certificate_cost(l_dt) do
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 2.3810
+      Date.compare(l_dt, ~D[2021-03-01]) in [:eq, :gt] -> 2.3810
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 1.6130
     end
   end
 
   defp market_charges(l_dt) do
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.2260
-      Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.0650
+      Date.compare(l_dt, ~D[2021-03-01]) in [:eq, :gt] -> 0.2260
+      Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 15.836
     end
   end
 
@@ -81,8 +81,8 @@ defmodule Scrooge.Aemo.Rates do
     # "Schedule of Tariffs"
     {_peak, _shoulder, _off_peak} =
       cond do
-        Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> {13.9316, 10.9293, 4.1243}
-        Date.compare(l_dt, ~D[2021-01-01]) in [:eq, :gt] -> {14.8340, 11.5662, 4.3576}
+        Date.compare(l_dt, ~D[2021-03-01]) in [:eq, :gt] -> {13.9316, 10.9293, 4.1243}
+        Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> {14.8340, 11.5662, 4.3576}
         Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> {0.0000, 11.5662, 4.3576}
         Date.compare(l_dt, ~D[2019-01-01]) in [:eq, :gt] -> {0.0000, 10.7419, 3.9028}
         Date.compare(l_dt, ~D[2018-01-01]) in [:eq, :gt] -> {0.0000, 10.1890, 3.0724}
@@ -107,12 +107,12 @@ defmodule Scrooge.Aemo.Rates do
   end
 
   defp amber_annual(_l_dt) do
-    120
+    109.08
   end
 
   defp amber_price_protection_hedging(l_dt) do
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 0.7000
+      Date.compare(l_dt, ~D[2021-03-01]) in [:eq, :gt] -> 0.7000
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.5000
     end
   end
@@ -129,7 +129,7 @@ defmodule Scrooge.Aemo.Rates do
 
   defp aemo_annual(l_dt) do
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 106
+      Date.compare(l_dt, ~D[2021-03-01]) in [:eq, :gt] -> 106
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 118
     end
   end
@@ -139,7 +139,7 @@ defmodule Scrooge.Aemo.Rates do
     # " Schedule of Tariffs"
 
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 106.00 * 100
+      Date.compare(l_dt, ~D[2021-03-01]) in [:eq, :gt] -> 106.00 * 100
       Date.compare(l_dt, ~D[2019-01-01]) in [:eq, :gt] -> 115.00 * 100
       Date.compare(l_dt, ~D[2018-01-01]) in [:eq, :gt] -> 109.00 * 100
     end
@@ -149,7 +149,7 @@ defmodule Scrooge.Aemo.Rates do
     # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
     # "Schedule of Prescribed Metering"
     cond do
-      Date.compare(l_dt, ~D[2021-02-01]) in [:eq, :gt] -> 71.38 * 100
+      Date.compare(l_dt, ~D[2021-03-01]) in [:eq, :gt] -> 71.38 * 100
       Date.compare(l_dt, ~D[2019-01-01]) in [:eq, :gt] -> 57.80 * 100
       Date.compare(l_dt, ~D[2018-01-01]) in [:eq, :gt] -> 60.80 * 100
     end
