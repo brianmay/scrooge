@@ -121,6 +121,7 @@ defmodule Scrooge.Aemo.Rates do
     # https://aemo.com.au/energy-systems/electricity/national-electricity-market-nem/market-operations/loss-factors-and-regional-boundaries
     # "Distribution Loss Factors for the 2020-21 Financial Year"
     cond do
+      Date.compare(l_dt, ~D[2021-07-01]) in [:eq, :gt] -> 1.0570
       Date.compare(l_dt, ~D[2020-07-01]) in [:eq, :gt] -> 1.0602
       Date.compare(l_dt, ~D[2019-07-01]) in [:eq, :gt] -> 1.0583
       Date.compare(l_dt, ~D[2018-07-01]) in [:eq, :gt] -> 1.0597
