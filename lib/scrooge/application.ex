@@ -5,7 +5,7 @@ defmodule Scrooge.Application do
 
   use Application
 
-  def get_tortoise_client_id do
+  defp get_client_id do
     {:ok, hostname} = :inet.gethostname()
     hostname = to_string(hostname)
     "scrooge-#{hostname}"
@@ -33,15 +33,23 @@ defmodule Scrooge.Application do
       {Scrooge.Aemo, []},
       # Start MQTT processes
       {Scrooge.Tesla, []},
-      {Tortoise.Connection,
-       client_id: get_tortoise_client_id(),
-       handler: {Scrooge.MqttHandler, []},
-       user_name: user_name,
+      {MqttPotion.Connection,
+       name: Scrooge.Mqtt,
+       host: mqtt_host,
+       port: mqtt_port,
+       ssl: true,
+       protocol_version: 5,
+       client_id: get_client_id(),
+       username: user_name,
        password: password,
-       server: {
-         Tortoise.Transport.SSL,
-         host: mqtt_host, port: mqtt_port, cacertfile: ca_cert_file
-       },
+       tcp_opts: [
+         :inet6
+       ],
+       ssl_opts: [
+         verify: :verify_peer,
+         cacertfile: ca_cert_file
+       ],
+       handler: Scrooge.MqttHandler,
        subscriptions: [
          {"teslamate/cars/1/#", 0}
        ]}

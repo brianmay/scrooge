@@ -35,6 +35,7 @@ jobs:
     env:
       DATABASE_URL_TEST: postgresql://postgres:postgres@localhost/test?sslmode=disable
       MIX_ENV: test
+      BUILD_WITHOUT_QUIC: true
 
     steps:
       - uses: actions/checkout@v2.3.4
@@ -80,6 +81,9 @@ jobs:
       matrix:
         elixir: [1.12.1]
         otp: [24.0.2]
+
+    env:
+      BUILD_WITHOUT_QUIC: true
 
     steps:
       - uses: actions/checkout@v2.3.4

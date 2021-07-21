@@ -46,7 +46,7 @@ defmodule Scrooge.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:bcrypt_elixir, "~> 2.0"},
       {:guardian, "~> 2.0"},
-      {:tortoise, "~> 0.9.2"},
+      {:mqtt_potion, github: "brianmay/mqtt_potion"},
       {:phoenix_live_view, "~> 0.15.4"},
       {:timex, "~> 3.5"},
       {:mojito, "~> 0.7.1"},

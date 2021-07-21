@@ -3,19 +3,16 @@ defmodule Scrooge.Robotica do
 
   require Logger
 
-  @spec publish_raw(String.t(), String.t()) :: :ok | {:error, String.t()}
+  @spec publish_raw(String.t(), String.t()) :: :ok
   def publish_raw(topic, data) do
-    client_id = Scrooge.Application.get_tortoise_client_id()
-    Tortoise.publish(client_id, topic, data, qos: 0)
+    :ok = MqttPotion.publish(Scrooge.Mqtt, topic, data, qos: 0)
   end
 
   @spec publish_json(String.t(), list() | map()) :: :ok | {:error, String.t()}
   def publish_json(topic, data) do
-    with {:ok, data} <- Jason.encode(data),
-         :ok <- publish_raw(topic, data) do
-      :ok
-    else
-      {:error, msg} -> {:error, "Tortoise.publish got error '#{msg}'"}
+    case Jason.encode(data) do
+      {:ok, data} -> publish_raw(topic, data)
+      {:error, msg} -> Logger.error("Poison.encode() got error '#{msg}'")
     end
   end
 

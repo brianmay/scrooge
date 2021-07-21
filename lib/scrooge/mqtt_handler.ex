@@ -1,51 +1,50 @@
 defmodule Scrooge.MqttHandler do
   @moduledoc false
+  @behaviour MqttPotion.Handler
 
   require Logger
 
-  use Tortoise.Handler
-
-  defstruct []
-  alias __MODULE__, as: State
-
-  def init(_opts) do
-    Logger.info("Initializing handler")
-    {:ok, %State{}}
+  @impl MqttPotion.Handler
+  def handle_connect do
+    Logger.info("MQTT Connection has been established")
+    :ok
   end
 
-  def connection(:up, state) do
-    Logger.info("Connection has been established")
-    {:ok, state}
+  @impl MqttPotion.Handler
+  def handle_disconnect(_reason, _properties) do
+    Logger.warn("MQTT Connection has been dropped")
+    :ok
   end
 
-  def connection(:down, state) do
-    Logger.warn("Connection has been dropped")
-    {:ok, state}
+  @impl MqttPotion.Handler
+  def handle_puback(_ack) do
+    :ok
   end
 
-  def connection(:terminating, state) do
-    Logger.warn("Connection is terminating")
-    {:ok, state}
+  @impl MqttPotion.Handler
+  def handle_message(["teslamate", "cars", "1" | topic], message) do
+    Logger.debug("handle message #{message.topic} #{inspect(message)}")
+    utc_now = DateTime.utc_now()
+
+    case decode(topic, message.payload) do
+      {key, :error} ->
+        Logger.error("Invalid #{inspect(key)} value #{inspect(message)} received")
+
+      {key, value} ->
+        Logger.debug("Got #{inspect(key)} #{inspect(message)} #{inspect(value)}")
+        Scrooge.Tesla.update_tesla_state(utc_now, key, value)
+
+      nil ->
+        nil
+    end
+
+    :ok
   end
 
-  def subscription(:up, topic, state) do
-    Logger.info("Subscribed to #{topic}")
-    {:ok, state}
-  end
-
-  def subscription({:warn, [requested: req, accepted: qos]}, topic, state) do
-    Logger.warn("Subscribed to #{topic}; requested #{req} but got accepted with QoS #{qos}")
-    {:ok, state}
-  end
-
-  def subscription({:error, reason}, topic, state) do
-    Logger.error("Error subscribing to #{topic}; #{inspect(reason)}")
-    {:ok, state}
-  end
-
-  def subscription(:down, topic, state) do
-    Logger.info("Unsubscribed from #{topic}")
-    {:ok, state}
+  @impl MqttPotion.Handler
+  def handle_message(_topic, message) do
+    Logger.info("#{message.topic} #{inspect(message)} unknown message")
+    :ok
   end
 
   defp float(value) do
@@ -94,32 +93,4 @@ defmodule Scrooge.MqttHandler do
   defp decode(["geofence"], body), do: {:geofence, string(body)}
   defp decode(["battery_level"], body), do: {:battery_level, integer(body)}
   defp decode(_, _), do: nil
-
-  def handle_message(["teslamate", "cars", "1" | topic], publish, state) do
-    utc_now = DateTime.utc_now()
-
-    case decode(topic, publish) do
-      {key, :error} ->
-        Logger.info("Invalid #{inspect(key)} value #{inspect(publish)} received")
-
-      {key, value} ->
-        Logger.debug("Got #{inspect(key)} #{inspect(publish)} #{inspect(value)}")
-        Scrooge.Tesla.update_tesla_state(utc_now, key, value)
-
-      nil ->
-        nil
-    end
-
-    {:ok, state}
-  end
-
-  def handle_message(topic, publish, state) do
-    Logger.info("#{Enum.join(topic, "/")} #{inspect(publish)} unknown message")
-    {:ok, state}
-  end
-
-  def terminate(reason, _state) do
-    Logger.warn("Client has been terminated with reason: #{inspect(reason)}")
-    :ok
-  end
 end
