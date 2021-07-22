@@ -12,7 +12,7 @@ defmodule Scrooge.Robotica do
   def publish_json(topic, data) do
     case Jason.encode(data) do
       {:ok, data} -> publish_raw(topic, data)
-      {:error, msg} -> Logger.error("Poison.encode() got error '#{msg}'")
+      {:error, msg} -> Logger.error("Jason.encode() got error '#{msg}'")
     end
   end
 
