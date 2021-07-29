@@ -10,7 +10,7 @@ defmodule ScroogeWeb.Router do
   end
 
   pipeline :auth do
-    plug Scrooge.Accounts.Pipeline
+    plug ScroogeWeb.Plug.Auth
   end
 
   # We use ensure_auth to fail if there is no one logged in
@@ -20,7 +20,7 @@ defmodule ScroogeWeb.Router do
 
   pipeline :ensure_admin do
     plug Guardian.Plug.EnsureAuthenticated
-    plug Scrooge.Accounts.CheckAdmin
+    plug ScroogeWeb.Plug.CheckAdmin
   end
 
   pipeline :api do

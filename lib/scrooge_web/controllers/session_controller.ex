@@ -6,18 +6,13 @@ defmodule ScroogeWeb.SessionController do
 
   def new(conn, _) do
     changeset = Accounts.change_user(%User{})
-    maybe_user = Guardian.Plug.current_resource(conn)
     next = conn.query_params["next"]
 
-    if maybe_user do
-      redirect(conn, to: Routes.page_path(conn, :index))
-    else
-      render(conn, "new.html",
-        changeset: changeset,
-        action: Routes.session_path(conn, :new, next: next),
-        active: "login"
-      )
-    end
+    render(conn, "new.html",
+      changeset: changeset,
+      action: Routes.session_path(conn, :new, next: next),
+      active: "login"
+    )
   end
 
   def login(conn, %{"user" => %{"username" => username, "password" => password}}) do

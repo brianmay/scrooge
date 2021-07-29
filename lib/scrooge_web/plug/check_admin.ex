@@ -1,8 +1,8 @@
-defmodule Scrooge.Accounts.CheckAdmin do
+defmodule ScroogeWeb.Plug.CheckAdmin do
   @moduledoc "Plugin to check if user is admin"
   import Plug.Conn
 
-  alias Scrooge.Accounts.Auth
+  use ScroogeWeb, :controller
 
   def init(_params) do
   end
@@ -14,7 +14,8 @@ defmodule Scrooge.Accounts.CheckAdmin do
       conn
     else
       conn
-      |> Auth.unauthorized_response()
+      |> put_flash(:danger, "Permission denied: Not authorized")
+      |> redirect(to: Routes.session_path(conn, :login, next: conn.request_path))
       |> halt()
     end
   end
