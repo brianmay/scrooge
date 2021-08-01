@@ -57,6 +57,7 @@ defmodule Scrooge.Aemo.Rates do
 
   defp carbon_neutral_offset(l_dt) do
     cond do
+      Date.compare(l_dt, ~D[2021-08-01]) in [:eq, :gt] -> 0.2182
       Date.compare(l_dt, ~D[2021-03-01]) in [:eq, :gt] -> 0.1000
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 0.1000
     end
@@ -64,6 +65,7 @@ defmodule Scrooge.Aemo.Rates do
 
   defp environmental_certificate_cost(l_dt) do
     cond do
+      Date.compare(l_dt, ~D[2021-08-01]) in [:eq, :gt] -> 2.8455
       Date.compare(l_dt, ~D[2021-03-01]) in [:eq, :gt] -> 2.3810
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 1.6130
     end
@@ -71,12 +73,13 @@ defmodule Scrooge.Aemo.Rates do
 
   defp market_charges(l_dt) do
     cond do
+      Date.compare(l_dt, ~D[2021-08-01]) in [:eq, :gt] -> 0.2455
       Date.compare(l_dt, ~D[2021-03-01]) in [:eq, :gt] -> 0.2260
       Date.compare(l_dt, ~D[2020-01-01]) in [:eq, :gt] -> 15.836
     end
   end
 
-  defp network_tarifs(l_dt) do
+  defp network_tarifs(l_dt, :ausnet_ngt26) do
     # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
     # "Schedule of Tariffs"
     {_peak, _shoulder, _off_peak} =
@@ -89,9 +92,16 @@ defmodule Scrooge.Aemo.Rates do
       end
   end
 
-  defp network_tarif(l_dt) do
-    {peak, shoulder, off_peak} = network_tarifs(l_dt)
+  defp network_tarifs(l_dt, :ausnet_nast11) do
+    # https://www.ausnetservices.com.au/Misc-Pages/Links/About-Us/Charges-and-revenues/Network-tariffs
+    # "Schedule of Tariffs"
+    {_peak, _off_peak} =
+      cond do
+        Date.compare(l_dt, ~D[2021-08-01]) in [:eq, :gt] -> {20.8545, 4.3455}
+      end
+  end
 
+  defp network_tarif_for_time(l_dt, {peak, shoulder, off_peak}, :ausnet_ngt26) do
     day_of_week = Date.day_of_week(l_dt)
 
     case {day_of_week, l_dt.hour} do
@@ -104,6 +114,30 @@ defmodule Scrooge.Aemo.Rates do
       {_, _} ->
         off_peak
     end
+  end
+
+  defp network_tarif_for_time(l_dt, {peak, off_peak}, :ausnet_nast11) do
+    case l_dt.hour do
+      hour when hour in 15..20 ->
+        peak
+
+      _ ->
+        off_peak
+    end
+  end
+
+  defp tarif(l_dt) do
+    # credo:disable-for-next-line Credo.Check.Refactor.CondStatements
+    cond do
+      Date.compare(l_dt, ~D[2021-08-01]) in [:eq, :gt] -> :ausnet_nast11
+      true -> :ausnet_ngt26
+    end
+  end
+
+  defp network_tarif(l_dt) do
+    tarif = tarif(l_dt)
+    network_tarifs = network_tarifs(l_dt, tarif)
+    network_tarif_for_time(l_dt, network_tarifs, tarif)
   end
 
   defp amber_annual(_l_dt) do
