@@ -44,6 +44,7 @@ defmodule Scrooge.MixProject do
       {:phoenix_pubsub, "~> 2.0"},
       {:phoenix_ecto, "~> 4.0"},
       {:ecto_sql, "~> 3.1"},
+      {:ecto_psql_extras, "~> 0.2"},
       {:postgrex, ">= 0.0.0"},
       {:phoenix_live_reload, "~> 1.2", only: :dev},
       {:gettext, "~> 0.11"},
