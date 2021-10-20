@@ -29,7 +29,7 @@ import "formdata-polyfill"
 import "classlist-polyfill"
 
 import {Socket} from "phoenix"
-import LiveSocket from "phoenix_live_view"
+import {LiveSocket} from "phoenix_live_view"
 
 function car() {
   let group = document.createElementNS("http://www.w3.org/2000/svg", "g");

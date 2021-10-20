@@ -1,5 +1,6 @@
 defmodule ScroogeWeb.Router do
   use ScroogeWeb, :router
+  import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -48,6 +49,7 @@ defmodule ScroogeWeb.Router do
     resources "/users", UserController
     get "/users/:id/password", UserController, :password_edit
     put "/users/:id/password", UserController, :password_update
+    live_dashboard "/dashboard", metrics: ScroogeWeb.Telemetry
   end
 
   # Other scopes may use custom stacks.

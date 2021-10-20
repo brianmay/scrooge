@@ -26,6 +26,7 @@ defmodule Scrooge.Application do
       {Cluster.Supervisor, [topologies, [name: Scrooge.ClusterSupervisor]]},
       # Start the Ecto repository
       Scrooge.Repo,
+      ScroogeWeb.Telemetry,
       # Start the endpoint when the application starts
       ScroogeWeb.Endpoint,
       {Phoenix.PubSub, [name: Scrooge.PubSub, adapter: Phoenix.PubSub.PG2]},
