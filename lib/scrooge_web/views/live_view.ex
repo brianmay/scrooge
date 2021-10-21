@@ -26,21 +26,21 @@ defmodule ScroogeWeb.LiveView do
     end
   end
 
-  defp div_rem(value, divider) do
-    {div(value, divider), rem(value, divider)}
-  end
+  # defp div_rem(value, divider) do
+  #   {div(value, divider), rem(value, divider)}
+  # end
 
-  defp pad(number, digits) do
-    number
-    |> Integer.to_string()
-    |> String.pad_leading(digits, "0")
-  end
+  # defp pad(number, digits) do
+  #   number
+  #   |> Integer.to_string()
+  #   |> String.pad_leading(digits, "0")
+  # end
 
-  defp format_distance(value) do
-    value = round(value)
-    {km, m} = div_rem(value, 1000)
-    "#{km}.#{pad(m, 3)}km"
-  end
+  # defp format_distance(value) do
+  #   value = round(value)
+  #   {km, m} = div_rem(value, 1000)
+  #   "#{km}.#{pad(m, 3)}km"
+  # end
 
   defp format_speed(nil), do: "nil"
   defp format_speed(value), do: "#{round(value)}km/h"
@@ -55,11 +55,11 @@ defmodule ScroogeWeb.LiveView do
     trunc(Float.round(cents))
   end
 
-  defp format_cents_as_dollars(cents) do
-    value = round(cents)
-    {d, c} = div_rem(value, 100)
-    "#{d}.#{pad(c, 2)}"
-  end
+  # defp format_cents_as_dollars(cents) do
+  #   value = round(cents)
+  #   {d, c} = div_rem(value, 100)
+  #   "#{d}.#{pad(c, 2)}"
+  # end
 
   defp aemo_price_type("ACTUAL"), do: "A"
   defp aemo_price_type("FORECAST"), do: "F"

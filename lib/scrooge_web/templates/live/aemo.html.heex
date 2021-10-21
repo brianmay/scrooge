@@ -5,12 +5,8 @@
     <select name="meter">
       <option value="">None</option>
       <%= for meter <- @meters do %>
-        <option
-          value="<%= meter %>"
-          <%= if meter == @meter do %>
-            selected="True"
-          <% end %>
-        >
+        <% selected = if meter == @meter, do: "True", else: nil %>
+        <option value={@meter} selected={selected}>
           <%= meter %>
         </option>
       <% end %>
@@ -41,9 +37,9 @@
       <%= for data <- @aemo_state["variablePrices"] do %>
         <% dt = date_time_to_str(data["period"]) %>
         <tr
-          class="<%= data["PERIODTYPE"] %>"
+          class={data["PERIODTYPE"]}
           phx-click="period"
-          phx-value-period="<%= dt %>"
+          phx-value-period={dt}
         >
           <% meter_data = data["prices"][@meter] %>
           <td><%= date_time_to_local(data["period"]) %></td>

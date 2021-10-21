@@ -129,9 +129,9 @@
   <%= if valid(@tesla_state.latitude) and valid(@tesla_state.longitude) and valid(@tesla_state.heading) do %>
     <div
       phx-hook="Map"
-      data-latitude="<%= @tesla_state.latitude %>"
-      data-longitude="<%= @tesla_state.longitude %>"
-      data-heading="<%= @tesla_state.heading %>"
+      data-latitude={@tesla_state.latitude}
+      data-longitude={@tesla_state.longitude}
+      data-heading={@tesla_state.heading}
       data-door-df="false"
       data-door-dr="false"
       data-door-pf="false"
