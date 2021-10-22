@@ -4,20 +4,42 @@ defmodule ScroogeWeb.SessionController do
   alias Scrooge.{Accounts, Accounts.Guardian, Accounts.User}
   alias ScroogeWeb.Router.Helpers, as: Routes
 
+  def use_oidc_login do
+    !!Application.get_env(:scrooge, :openid_connect_providers)
+  end
+
+  def oidc_login_url do
+    OpenIDConnect.authorization_uri(:client)
+  end
+
   def new(conn, _) do
-    changeset = Accounts.change_user(%User{})
     next = conn.query_params["next"]
 
-    render(conn, "new.html",
-      changeset: changeset,
-      action: Routes.session_path(conn, :new, next: next),
-      active: "login"
-    )
+    if use_oidc_login() do
+      conn
+      |> put_session(:next_url, next)
+      |> redirect(external: oidc_login_url())
+    else
+      changeset = Accounts.change_user(%User{})
+
+      render(conn, "new.html",
+        changeset: changeset,
+        action: Routes.session_path(conn, :new, next: next),
+        active: "login"
+      )
+    end
   end
 
   def login(conn, %{"user" => %{"username" => username, "password" => password}}) do
+    next =
+      case conn.query_params["next"] do
+        "" -> Routes.page_path(conn, :index)
+        nil -> Routes.page_path(conn, :index)
+        next -> next
+      end
+
     Accounts.authenticate_user(username, password)
-    |> login_reply(conn)
+    |> login_reply(conn, next)
   end
 
   def logout(conn, _) do
@@ -29,17 +51,10 @@ defmodule ScroogeWeb.SessionController do
 
     conn
     |> Guardian.Plug.sign_out()
-    |> redirect(to: Routes.session_path(conn, :new))
+    |> redirect(to: Routes.page_path(conn, :index))
   end
 
-  defp login_reply({:ok, user}, conn) do
-    next =
-      case conn.query_params["next"] do
-        "" -> Routes.page_path(conn, :index)
-        nil -> Routes.page_path(conn, :index)
-        next -> next
-      end
-
+  defp login_reply({:ok, user}, conn, next) do
     conn
     |> put_flash(:info, "Welcome back!")
     |> put_session(:live_socket_id, "users_socket:#{user.id}")
@@ -47,9 +62,31 @@ defmodule ScroogeWeb.SessionController do
     |> redirect(to: next)
   end
 
-  defp login_reply({:error, _reason}, conn) do
+  defp login_reply({:error, _reason}, conn, _next) do
     conn
     |> put_flash(:danger, "Invalid credentials")
     |> new(%{})
+  end
+
+  def create(conn, params) do
+    next =
+      case get_session(conn, :next_url) do
+        "" -> Routes.page_path(conn, :index)
+        nil -> Routes.page_path(conn, :index)
+        next -> next
+      end
+
+    conn = delete_session(conn, :next_url)
+
+    with {:ok, tokens} <- OpenIDConnect.fetch_tokens(:client, %{code: params["code"]}),
+         {:ok, claims} <- OpenIDConnect.verify(:client, tokens["id_token"]) do
+      Accounts.authenticate_user(claims["name"])
+      |> login_reply(conn, next)
+    else
+      _ ->
+        conn
+        |> put_flash(:danger, "Invalid credentials")
+        |> new(%{})
+    end
   end
 end

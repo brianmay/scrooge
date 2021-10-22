@@ -39,3 +39,13 @@ config :libcluster,
       ]
     ]
   ]
+
+config :scrooge, :openid_connect_providers,
+  client: [
+    discovery_document_uri: System.get_env("OIDC_DISCOVERY_URL"),
+    client_id: System.get_env("OIDC_CLIENT_ID"),
+    client_secret: System.get_env("OIDC_CLIENT_SECRET"),
+    redirect_uri: System.get_env("OIDC_CLIENT_URL"),
+    response_type: "code",
+    scope: System.get_env("OIDC_CLIENT_SCOPE")
+  ]

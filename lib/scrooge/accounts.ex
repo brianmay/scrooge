@@ -158,4 +158,16 @@ defmodule Scrooge.Accounts do
         end
     end
   end
+
+  def authenticate_user(username) do
+    query = from u in User, where: u.username == ^username
+
+    case Repo.one(query) do
+      nil ->
+        {:error, :invalid_credentials}
+
+      user ->
+        {:ok, user}
+    end
+  end
 end

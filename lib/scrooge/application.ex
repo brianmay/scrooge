@@ -56,6 +56,16 @@ defmodule Scrooge.Application do
        ]}
     ]
 
+    idc_connect_config = Application.get_env(:scrooge, :openid_connect_providers)
+
+    children =
+      if idc_connect_config do
+        config = {OpenIDConnect.Worker, idc_connect_config}
+        [config | children]
+      else
+        children
+      end
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Scrooge.Supervisor]
