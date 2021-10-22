@@ -2,7 +2,7 @@ defmodule ScroogeWeb.LayoutView do
   use ScroogeWeb, :view
 
   @spec prepend_if(list :: list(), condition :: bool(), item :: any()) :: list()
-  def prepend_if(list, condition, item) do
+  defp prepend_if(list, condition, item) do
     if condition, do: [item | list], else: list
   end
 
