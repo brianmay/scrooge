@@ -6,6 +6,7 @@ defmodule ScroogeWeb.Router do
     plug :accepts, ["html"]
     plug :fetch_session
     plug :fetch_live_flash
+    plug :put_root_layout, {ScroogeWeb.LayoutView, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
   end
@@ -40,8 +41,8 @@ defmodule ScroogeWeb.Router do
 
   scope "/", ScroogeWeb do
     pipe_through [:browser, :auth, :ensure_auth]
-    get "/aemo", PageController, :aemo
-    get "/tesla", PageController, :tesla
+    live "/aemo", Live.Aemo, :index
+    live "/tesla", Live.Tesla, :index
   end
 
   scope "/", ScroogeWeb do

@@ -35,6 +35,7 @@ defmodule ScroogeWeb.Live.Aemo do
       socket
       |> assign(:meter, "E1")
       |> assign(:period, nil)
+      |> assign(:active, "aemo")
       |> update_aemo_state(aemo_state)
 
     {:ok, socket}

@@ -12,8 +12,13 @@ defmodule ScroogeWeb.Live.Tesla do
     socket = assign_defaults(socket, session)
     Scrooge.Tesla.register(self())
     {active_conditions, tesla_state} = Scrooge.Tesla.get_tesla_state()
-    socket = assign(socket, :tesla_state, tesla_state)
-    socket = assign(socket, :active_conditions, active_conditions)
+
+    socket =
+      socket
+      |> assign(:tesla_state, tesla_state)
+      |> assign(:active_conditions, active_conditions)
+      |> assign(:active, "tesla")
+
     {:ok, socket}
   end
 
