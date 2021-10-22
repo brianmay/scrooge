@@ -7,7 +7,7 @@
     <title>Scrooge</title>
     <link
       rel="stylesheet"
-      href="<%= Routes.static_path(@conn, "/css/app.css") %>"
+      href={Routes.static_path(@conn, "/css/app.css")}
     />
   </head>
   <body>
@@ -29,24 +29,14 @@
         <ul class="navbar-nav mr-auto">
           <%= if Scrooge.Auth.user_signed_in?(@conn) do %>
             <li class="nav-item">
-              <%= link("Aemo", to: Routes.page_path(@conn, :aemo), class: "nav-link " <> active_class(@active, "aemo")) %>
+              <%= link("Aemo", to: Routes.page_path(@conn, :aemo), class: link_class(@active, "aemo")) %>
             </li>
-            <li class="nav-item dropdown">
-              <a
-                class="nav-link dropdown-toggle <%= active_class(@active, "tesla") %>"
-                href="#"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                Tesla
-              </a>
-              <div class="dropdown-menu">
-                <%= link("Tesla", to: Routes.page_path(@conn, :tesla), class: "dropdown-item") %>
-              </div>
+            <li class="nav-item">
+              <%= link("Tesla", to: Routes.page_path(@conn, :tesla), class: link_class(@active, "tesla")) %>
             </li>
             <%= if Scrooge.Auth.user_is_admin?(@conn) do %>
               <li class="nav-item">
-                <%= link("Users", to: Routes.user_path(@conn, :index), class: "nav-link " <> active_class(@active, "users")) %>
+                <%= link("Users", to: Routes.user_path(@conn, :index), class: link_class(@active, "users")) %>
               </li>
             <% end %>
 
@@ -65,7 +55,7 @@
             </li>
           <% else %>
             <li class="nav-item">
-              <%= link("Login", to: Routes.session_path(@conn, :new), class: "nav-link " <> active_class(@active, "login") ) %>
+              <%= link("Login", to: Routes.session_path(@conn, :new), class: link_class(@active, "login") ) %>
             </li>
           <% end %>
         </ul>
@@ -74,7 +64,7 @@
 
     <main role="main" class="container">
       <%= for {flash_key, flash_message} <- get_flash(@conn) do %>
-        <p class="alert alert-<%= flash_key %>"><%= flash_message %></p>
+        <p class={"alert alert-#{flash_key}"}><%= flash_message %></p>
       <% end %>
       <%= @inner_content %>
     </main>
@@ -89,7 +79,7 @@
     <%= csrf_meta_tag() %>
     <script
       type="text/javascript"
-      src="<%= Routes.static_path(@conn, "/js/app.js") %>"
+      src={Routes.static_path(@conn, "/js/app.js")}
     ></script>
   </body>
 </html>
