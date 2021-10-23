@@ -80,6 +80,8 @@ defmodule ScroogeWeb.SessionController do
 
     with {:ok, tokens} <- OpenIDConnect.fetch_tokens(:client, %{code: params["code"]}),
          {:ok, claims} <- OpenIDConnect.verify(:client, tokens["id_token"]) do
+      IO.puts(inspect(claims))
+
       Accounts.authenticate_user(claims["name"])
       |> login_reply(conn, next)
     else
