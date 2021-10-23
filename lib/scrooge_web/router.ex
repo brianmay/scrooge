@@ -17,11 +17,11 @@ defmodule ScroogeWeb.Router do
 
   # We use ensure_auth to fail if there is no one logged in
   pipeline :ensure_auth do
-    plug Guardian.Plug.EnsureAuthenticated
+    plug ScroogeWeb.Plug.EnsureAuth
   end
 
   pipeline :ensure_admin do
-    plug Guardian.Plug.EnsureAuthenticated
+    plug ScroogeWeb.Plug.EnsureAuth
     plug ScroogeWeb.Plug.CheckAdmin
   end
 
@@ -47,10 +47,6 @@ defmodule ScroogeWeb.Router do
 
   scope "/", ScroogeWeb do
     pipe_through [:browser, :auth, :ensure_admin]
-
-    resources "/users", UserController
-    get "/users/:id/password", UserController, :password_edit
-    put "/users/:id/password", UserController, :password_update
     live_dashboard "/dashboard", metrics: ScroogeWeb.Telemetry
   end
 

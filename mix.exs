@@ -50,8 +50,6 @@ defmodule Scrooge.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:bcrypt_elixir, "~> 2.0"},
-      {:guardian, "~> 2.0"},
       {:mqtt_potion, github: "brianmay/mqtt_potion"},
       {:timex, "~> 3.5"},
       {:mojito, "~> 0.7.1"},

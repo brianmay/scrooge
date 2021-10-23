@@ -1,7 +1,6 @@
-defmodule ScroogeWeb.Plug.CheckAdmin do
-  @moduledoc "Plugin to check if user is admin"
+defmodule ScroogeWeb.Plug.EnsureAuth do
+  @moduledoc "OIDC authentication pipeline"
   import Plug.Conn
-
   use ScroogeWeb, :controller
 
   def init(_params) do
@@ -14,7 +13,7 @@ defmodule ScroogeWeb.Plug.CheckAdmin do
       conn
     else
       conn
-      |> put_flash(:danger, "You must be admin to access this.")
+      |> put_flash(:danger, "You must be logged in to access this.")
       |> redirect(to: Routes.page_path(conn, :index))
       |> halt()
     end

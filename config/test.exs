@@ -20,3 +20,5 @@ config :scrooge, Scrooge.Accounts.Guardian,
 
 config :scrooge, ScroogeWeb.Endpoint,
   secret_key_base: "oOWDT+7p6JENufDeyMQFLqDMsj1bkVfQT4Navmr5qYem9crHED4jAMr0Stf4aRNt"
+
+config :scrooge, :openid_connect_providers, client: nil

@@ -46,12 +46,18 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
-config :scrooge, Scrooge.Accounts.Guardian,
-  issuer: "scrooge",
-  secret_key: System.get_env("GUARDIAN_SECRET")
-
 config :libcluster,
   topologies: []
+
+config :scrooge, :openid_connect_providers,
+  client: [
+    discovery_document_uri: System.get_env("OIDC_DISCOVERY_URL"),
+    client_id: System.get_env("OIDC_CLIENT_ID"),
+    client_secret: System.get_env("OIDC_CLIENT_SECRET"),
+    redirect_uri: System.get_env("OIDC_CLIENT_URL"),
+    response_type: "code",
+    scope: System.get_env("OIDC_AUTH_SCOPE")
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

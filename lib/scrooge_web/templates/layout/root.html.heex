@@ -27,16 +27,17 @@
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
-          <%= if Scrooge.Auth.user_signed_in?(@conn) do %>
+          <% user = @conn.assigns.user %>
+          <%= if Scrooge.User.user_signed_in?(user) do %>
             <li class="nav-item">
               <%= link("Aemo", to: Routes.aemo_path(@conn, :index), class: link_class(@active, "aemo")) %>
             </li>
             <li class="nav-item">
               <%= link("Tesla", to: Routes.tesla_path(@conn, :index), class: link_class(@active, "tesla")) %>
             </li>
-            <%= if Scrooge.Auth.user_is_admin?(@conn) do %>
+            <%= if Scrooge.User.user_is_admin?(user) do %>
               <li class="nav-item">
-                <%= link("Users", to: Routes.user_path(@conn, :index), class: link_class(@active, "users")) %>
+                <%= link("Dashboard", to: Routes.live_dashboard_path(@conn, :home), class: link_class(@active, "dashboard")) %>
               </li>
             <% end %>
 
@@ -47,7 +48,7 @@
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                <%= Scrooge.Auth.current_user(@conn).username %>
+                <%= user.name %>
               </a>
               <div class="dropdown-menu">
                 <%= link "Logout", to: Routes.session_path(@conn, :logout), method: :post, class: "dropdown-item" %>

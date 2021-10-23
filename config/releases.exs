@@ -14,10 +14,6 @@ config :scrooge, Scrooge.Repo,
   url: System.get_env("DATABASE_URL"),
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
-config :scrooge, Scrooge.Accounts.Guardian,
-  issuer: "scrooge",
-  secret_key: System.get_env("GUARDIAN_SECRET")
-
 config :scrooge, ScroogeWeb.Endpoint,
   http: [:inet6, port: port],
   url: [host: System.get_env("HTTP_HOST") || System.get_env("HOST"), port: port],
