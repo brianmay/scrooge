@@ -82,13 +82,20 @@ defmodule ScroogeWeb.SessionController do
          {:ok, claims} <- OpenIDConnect.verify(:client, tokens["id_token"]) do
       IO.puts(inspect(claims))
 
-      Accounts.authenticate_user(claims["name"])
-      |> login_reply(conn, next)
+      case Accounts.authenticate_user(claims["name"]) do
+        {:ok, user} ->
+          login_reply({:ok, user}, conn, next)
+
+        {:error, _reason} ->
+          conn
+          |> put_flash(:danger, "No user db entry exists for #{inspect(claims)}")
+          |> redirect(to: Routes.page_path(conn, :index))
+      end
     else
       _ ->
         conn
         |> put_flash(:danger, "Invalid credentials")
-        |> new(%{})
+        |> redirect(to: Routes.page_path(conn, :index))
     end
   end
 end
