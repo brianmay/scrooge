@@ -47,5 +47,5 @@ config :scrooge, :openid_connect_providers,
     client_secret: System.get_env("OIDC_CLIENT_SECRET"),
     redirect_uri: System.get_env("OIDC_CLIENT_URL"),
     response_type: "code",
-    scope: System.get_env("OIDC_CLIENT_SCOPE")
+    scope: System.get_env("OIDC_AUTH_SCOPE")
   ]
