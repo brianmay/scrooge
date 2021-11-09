@@ -3,10 +3,12 @@ defmodule ScroogeWeb.SessionController do
 
   alias ScroogeWeb.Router.Helpers, as: Routes
 
-  def oidc_login_url do
+  @spec oidc_login_url :: String.t()
+  defp oidc_login_url do
     OpenIDConnect.authorization_uri(:client)
   end
 
+  @spec new(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def new(conn, _) do
     next = conn.query_params["next"]
 
@@ -15,6 +17,7 @@ defmodule ScroogeWeb.SessionController do
     |> redirect(external: oidc_login_url())
   end
 
+  @spec logout(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def logout(conn, _) do
     user = conn.assigns.user
 
@@ -27,6 +30,7 @@ defmodule ScroogeWeb.SessionController do
     |> redirect(to: Routes.page_path(conn, :index))
   end
 
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, params) do
     next =
       case get_session(conn, :next_url) do
