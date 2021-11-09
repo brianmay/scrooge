@@ -36,7 +36,7 @@ defmodule ScroogeWeb.Router do
     get "/login", SessionController, :new
     post "/login", SessionController, :login
     post "/logout", SessionController, :logout
-    get("/callback", SessionController, :create)
+    get "/callback", SessionController, :create
   end
 
   scope "/", ScroogeWeb do
