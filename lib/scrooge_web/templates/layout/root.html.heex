@@ -27,15 +27,15 @@
 
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
-          <% user = @conn.assigns.user %>
-          <%= if Scrooge.User.user_signed_in?(user) do %>
+          <% user = ScroogeWeb.Auth.current_user(@conn) %>
+          <%= if user != nil do %>
             <li class="nav-item">
               <%= link("Aemo", to: Routes.aemo_path(@conn, :index), class: link_class(@active, "aemo")) %>
             </li>
             <li class="nav-item">
               <%= link("Tesla", to: Routes.tesla_path(@conn, :index), class: link_class(@active, "tesla")) %>
             </li>
-            <%= if Scrooge.User.user_is_admin?(user) do %>
+            <%= if ScroogeWeb.Auth.user_is_admin?(user) do %>
               <li class="nav-item">
                 <%= link("Dashboard", to: Routes.live_dashboard_path(@conn, :home), class: link_class(@active, "dashboard")) %>
               </li>
@@ -48,15 +48,15 @@
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
-                <%= user.name %>
+                <%= user["name"] %>
               </a>
               <div class="dropdown-menu">
-                <%= link "Logout", to: Routes.session_path(@conn, :logout), method: :post, class: "dropdown-item" %>
+                <%= link "Logout", to: Routes.page_path(@conn, :logout), method: :post, class: "dropdown-item" %>
               </div>
             </li>
           <% else %>
             <li class="nav-item">
-              <%= link("Login", to: Routes.session_path(@conn, :new), class: link_class(@active, "login") ) %>
+              <%= link("Login", to: Routes.page_path(@conn, :login), class: link_class(@active, "login") ) %>
             </li>
           <% end %>
         </ul>

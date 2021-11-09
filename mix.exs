@@ -56,7 +56,8 @@ defmodule Scrooge.MixProject do
       {:libcluster, "~> 3.3"},
       {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:openid_connect, "~> 0.2.2"}
+      {:plugoid, git: "https://github.com/tanguilp/plugoid.git", branch: "conn_callback"},
+      {:replug, "~> 0.1.0"}
     ]
   end
 

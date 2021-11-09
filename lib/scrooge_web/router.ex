@@ -1,5 +1,9 @@
 defmodule ScroogeWeb.Router do
   use ScroogeWeb, :router
+
+  use Plugoid.RedirectURI,
+    token_callback: &ScroogeWeb.TokenCallback.callback/5
+
   import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
@@ -11,47 +15,53 @@ defmodule ScroogeWeb.Router do
     plug :put_secure_browser_headers
   end
 
-  pipeline :auth do
-    plug ScroogeWeb.Plug.Auth
+  defmodule PlugoidConfig do
+    def common do
+      config = Application.get_env(:scrooge, :oidc)
+
+      [
+        issuer: config.discovery_document_uri,
+        client_id: config.client_id,
+        scope: String.split(config.scope, " "),
+        client_config: ScroogeWeb.ClientCallback
+      ]
+    end
   end
 
-  # We use ensure_auth to fail if there is no one logged in
+  pipeline :auth do
+    plug Replug,
+      plug: {Plugoid, on_unauthenticated: :pass},
+      opts: {PlugoidConfig, :common}
+  end
+
   pipeline :ensure_auth do
-    plug ScroogeWeb.Plug.EnsureAuth
+    plug Replug,
+      plug: {Plugoid, on_unauthenticated: :auth},
+      opts: {PlugoidConfig, :common}
   end
 
   pipeline :ensure_admin do
-    plug ScroogeWeb.Plug.EnsureAuth
     plug ScroogeWeb.Plug.CheckAdmin
   end
 
-  pipeline :api do
-    plug :accepts, ["json"]
-  end
+  live_session :default, on_mount: ScroogeWeb.InitAssigns do
+    scope "/", ScroogeWeb do
+      pipe_through [:browser, :auth]
 
-  scope "/", ScroogeWeb do
-    pipe_through [:browser, :auth]
+      get "/", PageController, :index
+      post "/logout", PageController, :logout
+    end
 
-    get "/", PageController, :index
-    get "/login", SessionController, :new
-    post "/login", SessionController, :login
-    post "/logout", SessionController, :logout
-    get "/callback", SessionController, :create
-  end
-
-  scope "/", ScroogeWeb do
-    pipe_through [:browser, :auth, :ensure_auth]
-    live "/aemo", Live.Aemo, :index
-    live "/tesla", Live.Tesla, :index
+    scope "/", ScroogeWeb do
+      pipe_through [:browser, :auth, :ensure_auth]
+      get "/login", PageController, :login
+      live "/aemo", Live.Aemo, :index
+      live "/tesla", Live.Tesla, :index
+    end
   end
 
   scope "/", ScroogeWeb do
     pipe_through [:browser, :auth, :ensure_admin]
     live_dashboard "/dashboard", metrics: ScroogeWeb.Telemetry
   end
-
-  # Other scopes may use custom stacks.
-  # scope "/api", ScroogeWeb do
-  #   pipe_through :api
-  # end
 end

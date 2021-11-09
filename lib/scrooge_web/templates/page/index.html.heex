@@ -1,7 +1,8 @@
 <h1><%= gettext "Welcome to %{name}!", name: "Scrooge" %></h1>
 <p>Protect your money from energy companies.</p>
 
-<%= if Scrooge.User.user_signed_in?(@conn.assigns.user) do %>
+<% user = ScroogeWeb.Auth.current_user(@conn) %>
+<%= if user != nil do %>
   <ul>
     <li>
       <%= link "Telsa", to: Routes.tesla_path(@conn, :index) %>
@@ -10,9 +11,9 @@
       <%= link "Aemo", to: Routes.aemo_path(@conn, :index) %>
     </li>
     <li>
-      <%= link "Logout", to: Routes.session_path(@conn, :logout), method: :post %>
+      <%= link "Logout", to: Routes.page_path(@conn, :logout), method: :post %>
     </li>
   </ul>
 <% else %>
-  Please <%= link("Login", to: Routes.session_path(@conn, :new)) %>.
+  Please <%= link("Login", to: Routes.page_path(@conn, :login)) %>.
 <% end %>

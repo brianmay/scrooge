@@ -19,18 +19,26 @@ config :scrooge,
   build_date: System.get_env("BUILD_DATE"),
   vcs_ref: System.get_env("VCS_REF"),
   timezone: "Australia/Melbourne",
-  robotica: true
+  robotica: true,
+  oidc: %{
+    discovery_document_uri: System.get_env("OIDC_DISCOVERY_URL"),
+    client_id: System.get_env("OIDC_CLIENT_ID"),
+    client_secret: System.get_env("OIDC_CLIENT_SECRET"),
+    scope: System.get_env("OIDC_AUTH_SCOPE")
+  }
 
 config :scrooge, Scrooge.Repo,
   url: System.get_env("DATABASE_URL"),
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
 port = String.to_integer(System.get_env("PORT") || "4000")
+http_url = System.get_env("HTTP_URL") || "http://localhost:4000"
+http_uri = URI.parse(http_url)
 
 # Configures the endpoint
 config :scrooge, ScroogeWeb.Endpoint,
   http: [:inet6, port: port],
-  url: [host: "localhost", port: port],
+  url: [scheme: http_uri.scheme, host: http_uri.host, port: http_uri.port],
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [view: ScroogeWeb.ErrorView, accepts: ~w(html json)],
   pubsub_server: Scrooge.PubSub,
@@ -49,14 +57,13 @@ config :phoenix, :json_library, Jason
 config :libcluster,
   topologies: []
 
-config :scrooge, :openid_connect_providers,
-  client: [
-    discovery_document_uri: System.get_env("OIDC_DISCOVERY_URL"),
-    client_id: System.get_env("OIDC_CLIENT_ID"),
-    client_secret: System.get_env("OIDC_CLIENT_SECRET"),
-    redirect_uri: System.get_env("OIDC_CLIENT_URL"),
-    response_type: "code",
-    scope: System.get_env("OIDC_AUTH_SCOPE")
+config :plugoid,
+  auth_cookie_store: Plug.Session.COOKIE,
+  auth_cookie_store_opts: [
+    signing_salt: System.get_env("SIGNING_SALT")
+  ],
+  state_cookie_store_opts: [
+    signing_salt: System.get_env("SIGNING_SALT")
   ]
 
 # Import environment specific config. This must remain at the bottom

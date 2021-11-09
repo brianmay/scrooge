@@ -8,9 +8,9 @@ defmodule ScroogeWeb.Plug.CheckAdmin do
   end
 
   def call(%Plug.Conn{} = conn, _params) do
-    user = conn.assigns.user
+    user = ScroogeWeb.Auth.current_user(conn)
 
-    if Scrooge.User.user_is_admin?(user) do
+    if ScroogeWeb.Auth.user_is_admin?(user) do
       conn
     else
       conn

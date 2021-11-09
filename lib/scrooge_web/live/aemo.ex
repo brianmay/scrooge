@@ -2,8 +2,6 @@ defmodule ScroogeWeb.Live.Aemo do
   @moduledoc "Get AEMO price information"
   use Phoenix.LiveView
 
-  import ScroogeWeb.LiveHelpers
-
   def render(assigns) do
     ScroogeWeb.LiveView.render("aemo.html", assigns)
   end
@@ -26,8 +24,7 @@ defmodule ScroogeWeb.Live.Aemo do
     |> assign(:meter, meter)
   end
 
-  def mount(_params, session, socket) do
-    socket = assign_defaults(socket, session)
+  def mount(_params, _session, socket) do
     Scrooge.Aemo.register(self())
     aemo_state = Scrooge.Aemo.get_aemo_state()
 
