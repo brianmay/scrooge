@@ -5,15 +5,15 @@
 <%= if user != nil do %>
   <ul>
     <li>
-      <%= link "Telsa", to: Routes.tesla_path(@conn, :index) %>
+      <%= live_redirect "Telsa", to: Routes.tesla_path(@conn, :index) %>
     </li>
     <li>
-      <%= link "Aemo", to: Routes.aemo_path(@conn, :index) %>
+      <%= live_redirect "Aemo", to: Routes.aemo_path(@conn, :index) %>
     </li>
     <li>
-      <%= link "Logout", to: Routes.page_path(@conn, :logout), method: :post %>
+      <%= live_redirect "Logout", to: Routes.page_path(@conn, :logout), method: :post %>
     </li>
   </ul>
 <% else %>
-  Please <%= link("Login", to: Routes.page_path(@conn, :login)) %>.
+  Please <%= live_redirect("Login", to: Routes.page_path(@conn, :login)) %>.
 <% end %>
