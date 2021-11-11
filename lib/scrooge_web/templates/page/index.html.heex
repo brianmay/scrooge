@@ -11,7 +11,7 @@
       <%= live_redirect "Aemo", to: Routes.aemo_path(@conn, :index) %>
     </li>
     <li>
-      <%= live_redirect "Logout", to: Routes.page_path(@conn, :logout), method: :post %>
+      <%= link "Logout", to: Routes.page_path(@conn, :logout), method: :post %>
     </li>
   </ul>
 <% else %>
