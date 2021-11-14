@@ -1,25 +1,26 @@
-defmodule ScroogeWeb.LiveView do
-  use ScroogeWeb, :view
-
+defmodule ScroogeWeb.ViewHelpers do
+  @moduledoc """
+  Define helper functions for views
+  """
   alias Phoenix.HTML.Link
 
-  defp valid(value), do: not is_nil(value)
+  def valid(value), do: not is_nil(value)
 
-  defp timezone, do: Application.get_env(:scrooge, :timezone)
+  def timezone, do: Application.get_env(:scrooge, :timezone)
 
-  defp date_time_to_str(dt) do
+  def date_time_to_str(dt) do
     DateTime.to_iso8601(dt)
   end
 
-  defp date_time_to_local(nil), do: nil
+  def date_time_to_local(nil), do: nil
 
-  defp date_time_to_local(dt) do
+  def date_time_to_local(dt) do
     dt
     |> DateTime.shift_zone!(timezone())
     |> Timex.format!("%F %T", :strftime)
   end
 
-  defp door_state(value) do
+  def door_state(value) do
     case value do
       true -> "Opened"
       false -> "Closed"
@@ -42,16 +43,16 @@ defmodule ScroogeWeb.LiveView do
   #   "#{km}.#{pad(m, 3)}km"
   # end
 
-  defp format_speed(nil), do: "nil"
-  defp format_speed(value), do: "#{round(value)}km/h"
+  def format_speed(nil), do: "nil"
+  def format_speed(value), do: "#{round(value)}km/h"
 
-  defp location_link(latitude, longitude) do
+  def location_link(latitude, longitude) do
     text = "#{latitude},#{longitude}"
 
     Link.link(text, to: "https://www.google.com/maps/search/#{latitude},#{longitude}")
   end
 
-  defp format_cents(cents) do
+  def format_cents(cents) do
     trunc(Float.round(cents))
   end
 
@@ -61,6 +62,6 @@ defmodule ScroogeWeb.LiveView do
   #   "#{d}.#{pad(c, 2)}"
   # end
 
-  defp aemo_price_type("ACTUAL"), do: "A"
-  defp aemo_price_type("FORECAST"), do: "F"
+  def aemo_price_type("ACTUAL"), do: "A"
+  def aemo_price_type("FORECAST"), do: "F"
 end

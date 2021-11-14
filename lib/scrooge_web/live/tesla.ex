@@ -1,10 +1,6 @@
 defmodule ScroogeWeb.Live.Tesla do
   @moduledoc "Live view for Tesla"
-  use Phoenix.LiveView
-
-  def render(assigns) do
-    ScroogeWeb.LiveView.render("tesla.html", assigns)
-  end
+  use ScroogeWeb, :live_view
 
   def mount(_params, _session, socket) do
     Scrooge.Tesla.register(self())

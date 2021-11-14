@@ -1,10 +1,6 @@
 defmodule ScroogeWeb.Live.Aemo do
   @moduledoc "Get AEMO price information"
-  use Phoenix.LiveView
-
-  def render(assigns) do
-    ScroogeWeb.LiveView.render("aemo.html", assigns)
-  end
+  use ScroogeWeb, :live_view
 
   defp update_aemo_state(socket, aemo_state) do
     meters = ["E1"]

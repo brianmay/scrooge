@@ -47,7 +47,6 @@ defmodule ScroogeWeb.Router do
   live_session :default, on_mount: ScroogeWeb.InitAssigns do
     scope "/", ScroogeWeb do
       pipe_through [:browser, :auth]
-
       get "/", PageController, :index
       post "/logout", PageController, :logout
     end
