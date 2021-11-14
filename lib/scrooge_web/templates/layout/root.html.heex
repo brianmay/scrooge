@@ -28,16 +28,17 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <% user = ScroogeWeb.Auth.current_user(@conn) %>
+          <% active = assigns[:active] %>
           <%= if user != nil do %>
             <li class="nav-item">
-              <%= live_redirect("Aemo", to: Routes.aemo_path(@conn, :index), class: link_class(@active, "aemo")) %>
+              <%= live_redirect("Aemo", to: Routes.aemo_path(@conn, :index), class: link_class(active, "aemo")) %>
             </li>
             <li class="nav-item">
-              <%= live_redirect("Tesla", to: Routes.tesla_path(@conn, :index), class: link_class(@active, "tesla")) %>
+              <%= live_redirect("Tesla", to: Routes.tesla_path(@conn, :index), class: link_class(active, "tesla")) %>
             </li>
             <%= if ScroogeWeb.Auth.user_is_admin?(user) do %>
               <li class="nav-item">
-                <%= live_redirect("Dashboard", to: Routes.live_dashboard_path(@conn, :home), class: link_class(@active, "dashboard")) %>
+                <%= live_redirect("Dashboard", to: Routes.live_dashboard_path(@conn, :home), class: link_class(active, "dashboard")) %>
               </li>
             <% end %>
 
@@ -56,7 +57,7 @@
             </li>
           <% else %>
             <li class="nav-item">
-              <%= live_redirect("Login", to: Routes.page_path(@conn, :login), class: link_class(@active, "login") ) %>
+              <%= live_redirect("Login", to: Routes.page_path(@conn, :login), class: link_class(active, "login") ) %>
             </li>
           <% end %>
         </ul>
