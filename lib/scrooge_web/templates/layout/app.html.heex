@@ -53,7 +53,7 @@
 
 <main role="main" class="container">
     <%= for {flash_key, flash_message} <- get_flash(@conn) do %>
-    <p class={"alert alert-#{flash_key}"}><%= flash_message %></p>
+        <p class={"alert alert-#{flash_key}"}><%= flash_message %></p>
     <% end %>
     <%= @inner_content %>
 </main>

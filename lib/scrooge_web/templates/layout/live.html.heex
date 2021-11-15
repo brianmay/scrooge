@@ -9,7 +9,7 @@
     aria-expanded="false"
     aria-label="Toggle navigation"
     >
-    <span class="navbar-toggler-icon"></span>
+        <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarsExampleDefault">
@@ -54,7 +54,7 @@
 <main role="main" class="container">
     <%= for {flash_key, flash_message} <- @flash do %>
         <p class={"alert alert-#{flash_key}"} phx-click="lv:clear-flash">
-        <%= flash_message %>
+            <%= flash_message %>
         </p>
     <% end %>
     <%= @inner_content %>
