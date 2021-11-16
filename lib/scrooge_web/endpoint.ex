@@ -3,6 +3,7 @@ defmodule ScroogeWeb.Endpoint do
 
   @session_options [
     store: :cookie,
+    secure: true,
     key: "_scrooge_key",
     signing_salt: "4ISIhqeg"
   ]
