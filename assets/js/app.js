@@ -151,6 +151,7 @@ function pointer(bearing, el) {
 let Hooks = {};
 let map = null;
 let marker = null;
+let people = {};
 
 Hooks.MapDetails = {
     updated() {
@@ -183,7 +184,19 @@ Hooks.Map = {
             icon: pointer(heading, this.el),
         }).addTo(map);
 
-        marker.bindPopup(document.getElementById("details").cloneNode(true))
+        marker.bindPopup(document.getElementById("details").cloneNode(true));
+
+        this.handleEvent("person", function(person) {
+          let id = person.id;
+          let latitude = person.location.latitude;
+          let longitude = person.location.longitude;
+          if (people[id]) {
+            people[id].setLatLng([latitude, longitude]);
+          } else {
+            people[id] = L.marker([latitude, longitude]).addTo(map);
+            people[id].bindPopup(`${person.firstName} ${person.lastName}`);
+          }
+        })
     },
 
     updated() {

@@ -30,6 +30,14 @@ defmodule ScroogeWeb.Live.Tesla do
       )
     end
 
+    Scrooge.MqttMultiplexer.subscribe(
+      ["life360", "#"],
+      :life360,
+      self(),
+      :json,
+      :resend
+    )
+
     tesla =
       Enum.reduce(attributes, %{}, fn {key, _}, tesla ->
         Map.put(tesla, key, nil)
@@ -38,12 +46,26 @@ defmodule ScroogeWeb.Live.Tesla do
     socket =
       socket
       |> assign(:tesla, tesla)
+      |> assign(:life360, %{})
       |> assign(:active, "tesla")
 
     {:ok, socket}
   end
 
   @impl true
+  def handle_cast({:mqtt, _, :life360, payload}, socket) do
+    id = payload["id"]
+
+    life360 = Map.put(socket.assigns.life360, id, payload)
+
+    socket =
+      socket
+      |> assign(:life360, life360)
+      |> push_event("person", payload)
+
+    {:noreply, socket}
+  end
+
   def handle_cast({:mqtt, _, key, payload}, socket) do
     payload = decode(key, payload)
 
