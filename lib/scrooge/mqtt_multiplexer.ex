@@ -228,7 +228,8 @@ defmodule Scrooge.MqttMultiplexer do
     Enum.each(new_subscriptions, fn
       {topic, []} ->
         client_name = PenguinNodes.Mqtt
-        Logger.info("+ Unsubscribing from #{topic}.")
+        topic_str = Enum.join(topic, "/")
+        Logger.info("+ Unsubscribing from #{topic_str}.")
         MqttPotion.unsubscribe(client_name, topic)
 
       {_, _} ->
