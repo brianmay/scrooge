@@ -17,7 +17,8 @@ defmodule ScroogeWeb.Live.Tesla do
       plugged_in: "plugged_in",
       geofence: "geofence",
       is_user_present: "is_user_present",
-      locked: "locked"
+      locked: "locked",
+      state: "state"
     }
 
     for {key, name} <- attributes do
@@ -119,5 +120,6 @@ defmodule ScroogeWeb.Live.Tesla do
   defp decode(:locked, body), do: boolean(body)
   defp decode(:is_user_present, body), do: boolean(body)
   defp decode(:geofence, body), do: string(body)
+  defp decode(:state, body), do: string(body)
   defp decode(:battery_level, body), do: integer(body)
 end

@@ -49,6 +49,15 @@
         </tr>
       <% end %>
 
+      <%= if valid(@tesla.state) do %>
+        <tr>
+          <th>State</th>
+          <td>
+            <%= @tesla.state %>
+          </td>
+        </tr>
+      <% end %>
+
       <%= if valid(@tesla.doors_open) do %>
         <tr>
           <th>Doors</th>
