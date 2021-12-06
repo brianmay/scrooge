@@ -6,7 +6,6 @@ config :scrooge,
   ca_cert_file: System.get_env("MQTT_CA_CERT_FILE"),
   mqtt_user_name: System.get_env("MQTT_USER_NAME"),
   mqtt_password: System.get_env("MQTT_PASSWORD"),
-  robotica: System.get_env("ROBOTICA") != nil,
   oidc: %{
     discovery_document_uri: System.get_env("OIDC_DISCOVERY_URL"),
     client_id: System.get_env("OIDC_CLIENT_ID"),

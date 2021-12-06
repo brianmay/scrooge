@@ -33,7 +33,7 @@ defmodule Scrooge.Application do
       # Start Aemo process
       {Scrooge.Aemo, []},
       # Start MQTT processes
-      {Scrooge.Tesla, []},
+      {Scrooge.MqttMultiplexer, []},
       {MqttPotion.Connection,
        name: Scrooge.Mqtt,
        host: mqtt_host,
@@ -51,9 +51,7 @@ defmodule Scrooge.Application do
          cacertfile: ca_cert_file
        ],
        handler: Scrooge.MqttHandler,
-       subscriptions: [
-         {"teslamate/cars/1/#", 0}
-       ]}
+       subscriptions: []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

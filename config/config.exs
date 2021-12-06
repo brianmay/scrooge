@@ -19,7 +19,6 @@ config :scrooge,
   build_date: System.get_env("BUILD_DATE"),
   vcs_ref: System.get_env("VCS_REF"),
   timezone: "Australia/Melbourne",
-  robotica: true,
   oidc: %{
     discovery_document_uri: System.get_env("OIDC_DISCOVERY_URL"),
     client_id: System.get_env("OIDC_CLIENT_ID"),

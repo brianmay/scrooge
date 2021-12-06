@@ -17,121 +17,116 @@
   rel="stylesheet"
 />
 
-<%= inspect @tesla_state %>
-<%= inspect @active_conditions %>
+<pre><%= inspect(@tesla, pretty: true) %></pre>
 
-<%= if map_size(@tesla_state) > 0 do %>
   <table class="table">
     <tbody>
-      <%= if valid(@tesla_state.since) do %>
+      <%= if valid(@tesla.since) do %>
         <tr>
           <th>Last Update time</th>
-          <td><%= @tesla_state.since |> date_time_to_local() %></td>
+          <td><%= @tesla.since |> date_time_to_local() %></td>
         </tr>
       <% end %>
 
-      <%= if valid(@tesla_state.latitude) and valid(@tesla_state.longitude) do %>
+      <%= if valid(@tesla.latitude) and valid(@tesla.longitude) do %>
         <tr>
           <th>Location</th>
           <td>
-            <%= location_link(@tesla_state.latitude, @tesla_state.longitude) %>
+            <%= location_link(@tesla.latitude, @tesla.longitude) %>
           </td>
         </tr>
       <% end %>
 
-      <%= if valid(@tesla_state.speed) and valid(@tesla_state.heading) do %>
+      <%= if valid(@tesla.speed) and valid(@tesla.heading) do %>
         <tr>
           <th>Speed / heading</th>
           <td>
-            <%= format_speed(@tesla_state.speed) %> /
-            <%= @tesla_state.heading %>
+            <%= format_speed(@tesla.speed) %> /
+            <%= @tesla.heading %>
           </td>
         </tr>
       <% end %>
 
-      <%= if valid(@tesla_state.doors_open) do %>
+      <%= if valid(@tesla.doors_open) do %>
         <tr>
           <th>Doors</th>
           <td>
-            <%= door_state(@tesla_state.doors_open) %>
+            <%= door_state(@tesla.doors_open) %>
           </td>
         </tr>
       <% end %>
 
-      <%= if valid(@tesla_state.trunk_open) do %>
+      <%= if valid(@tesla.trunk_open) do %>
         <tr>
           <th>Trunk</th>
           <td>
-            <%= door_state(@tesla_state.trunk_open) %>
+            <%= door_state(@tesla.trunk_open) %>
           </td>
         </tr>
       <% end %>
 
-      <%= if valid(@tesla_state.frunk_open) do %>
+      <%= if valid(@tesla.frunk_open) do %>
         <tr>
           <th>Frunk</th>
           <td>
-            <%= door_state(@tesla_state.frunk_open) %>
+            <%= door_state(@tesla.frunk_open) %>
           </td>
         </tr>
       <% end %>
 
-      <%= if valid(@tesla_state.windows_open) do %>
+      <%= if valid(@tesla.windows_open) do %>
         <tr>
           <th>Windows</th>
           <td>
-            <%= door_state(@tesla_state.windows_open) %>
+            <%= door_state(@tesla.windows_open) %>
           </td>
         </tr>
       <% end %>
 
-      <%= if valid(@tesla_state.plugged_in) do %>
+      <%= if valid(@tesla.plugged_in) do %>
         <tr>
           <th>Plugged In</th>
           <td>
-            <%= @tesla_state.plugged_in %>
+            <%= @tesla.plugged_in %>
           </td>
         </tr>
       <% end %>
 
-      <%= if valid(@tesla_state.geofence) do %>
+      <%= if valid(@tesla.geofence) do %>
         <tr>
           <th>Geofence</th>
           <td>
-            <%= @tesla_state.geofence %>
+            <%= @tesla.geofence %>
           </td>
         </tr>
       <% end %>
 
-      <%= if valid(@tesla_state.is_user_present) do %>
+      <%= if valid(@tesla.is_user_present) do %>
         <tr>
           <th>Is User Present</th>
           <td>
-            <%= @tesla_state.is_user_present %>
+            <%= @tesla.is_user_present %>
           </td>
         </tr>
       <% end %>
 
-      <%= if valid(@tesla_state.locked) do %>
+      <%= if valid(@tesla.locked) do %>
         <tr>
           <th>Locked</th>
           <td>
-            <%= @tesla_state.locked %>
-            <%= if @tesla_state.unlocked_time do %>
-              at <%= @tesla_state.unlocked_time |> date_time_to_local() %>
-            <% end %>
+            <%= @tesla.locked %>
           </td>
         </tr>
       <% end %>
     </tbody>
   </table>
 
-  <%= if valid(@tesla_state.latitude) and valid(@tesla_state.longitude) and valid(@tesla_state.heading) do %>
+  <%= if valid(@tesla.latitude) and valid(@tesla.longitude) and valid(@tesla.heading) do %>
     <div
       phx-hook="Map"
-      data-latitude={@tesla_state.latitude}
-      data-longitude={@tesla_state.longitude}
-      data-heading={@tesla_state.heading}
+      data-latitude={@tesla.latitude}
+      data-longitude={@tesla.longitude}
+      data-heading={@tesla.heading}
       data-door-df="false"
       data-door-dr="false"
       data-door-pf="false"
@@ -150,15 +145,10 @@
         <table class="table">
           <tbody>
             <tr>
-              <th>Last Update time</th>
-              <td><%= @tesla_state.since |> date_time_to_local() %></td>
-            </tr>
-
-            <tr>
               <th>Speed / heading</th>
               <td>
-                <%= format_speed(@tesla_state.speed) %> /
-                <%= @tesla_state.heading %>
+                <%= format_speed(@tesla.speed) %> /
+                <%= @tesla.heading %>
               </td>
             </tr>
           </tbody>
@@ -166,6 +156,4 @@
       </div>
     </div>
   <% end %>
-<% else %>
-  No state date found.
-<% end %>
+
