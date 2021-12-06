@@ -191,6 +191,9 @@ defmodule Scrooge.MqttMultiplexer do
   defp compare_topics([], []), do: true
   defp compare_topics(["#"], _), do: true
 
+  defp compare_topics(["+" | abbrev_topic], [_ | full_topic]),
+    do: compare_topics(abbrev_topic, full_topic)
+
   defp compare_topics([head | abbrev_topic], [head | full_topic]),
     do: compare_topics(abbrev_topic, full_topic)
 
