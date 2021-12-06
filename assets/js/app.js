@@ -12,6 +12,15 @@ import css from "../css/app.scss"
 import "bootstrap"
 import "phoenix_html"
 
+import "leaflet"
+import "leaflet.markercluster"
+import "leaflet.fullscreen"
+
+import "leaflet/dist/leaflet.css"
+import "leaflet.markercluster/dist/MarkerCluster.css"
+import "leaflet.markercluster/dist/MarkerCluster.Default.css"
+import "leaflet.fullscreen/Control.FullScreen.css"
+
 // Import local files
 //
 // Local files can be imported directly using relative paths, for example:
@@ -150,13 +159,14 @@ function pointer(bearing, el) {
 
 let Hooks = {};
 let map = null;
-let marker = null;
+let markers = null;
+let tesla_marker = null;
 let people = {};
 
 Hooks.MapDetails = {
     updated() {
-        if (marker != null) {
-            marker.setPopupContent(this.el.firstElementChild.cloneNode(true));
+        if (tesla_marker != null) {
+          tesla_marker.setPopupContent(this.el.firstElementChild.cloneNode(true));
         }
     }
 }
@@ -180,22 +190,33 @@ Hooks.Map = {
         map.addLayer(osm);
 
         map.setView([latitude, longitude], 16);
-        marker = L.marker([latitude, longitude], {
-            icon: pointer(heading, this.el),
-        }).addTo(map);
+        markers = L.markerClusterGroup().addTo(map);
 
-        marker.bindPopup(document.getElementById("details").cloneNode(true));
+        tesla_marker = L.marker([latitude, longitude], {
+            icon: pointer(heading, this.el),
+        }).addTo(markers);
+
+        tesla_marker.bindPopup(document.getElementById("details").cloneNode(true));
 
         this.handleEvent("person", function(person) {
           let id = person.id;
           let latitude = person.location.latitude;
           let longitude = person.location.longitude;
+          let icon = L.icon({
+            iconUrl: person.avatar,
+            iconSize: [67, 72],
+            iconAnchor: [33, 36],
+          })
+
           if (people[id]) {
             people[id].setLatLng([latitude, longitude]);
+            people[id].setIcon(icon);
           } else {
-            people[id] = L.marker([latitude, longitude]).addTo(map);
+            people[id] = L.marker([latitude, longitude], {icon: icon}).addTo(markers);
             people[id].bindPopup(`${person.firstName} ${person.lastName}`);
           }
+
+
         })
     },
 
@@ -204,7 +225,7 @@ Hooks.Map = {
         let longitude = parseFloat(this.el.getAttribute("data-longitude"));
         let heading = parseFloat(this.el.getAttribute("data-heading"));
         map.setView([latitude, longitude], 16);
-        marker.setLatLng([latitude, longitude]).setIcon(pointer(heading, this.el));
+        tesla_marker.setLatLng([latitude, longitude]).setIcon(pointer(heading, this.el));
     }
 };
 
