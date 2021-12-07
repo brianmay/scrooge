@@ -114,19 +114,7 @@
   </table>
 
   <%= if valid(@tesla.latitude) and valid(@tesla.longitude) and valid(@tesla.heading) do %>
-    <div
-      phx-hook="Map"
-      data-latitude={@tesla.latitude}
-      data-longitude={@tesla.longitude}
-      data-heading={@tesla.heading}
-      data-door-df="false"
-      data-door-dr="false"
-      data-door-pf="false"
-      data-door-pr="false"
-      data-door-ft="false"
-      data-door-rt="false"
-      id="map"
-    ></div>
+    <div phx-hook="Map" id="map"></div>
 
     <div phx-update="ignore">
       <div id="mapid"></div>
@@ -148,4 +136,3 @@
       </div>
     </div>
   <% end %>
-

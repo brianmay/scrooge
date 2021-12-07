@@ -37,8 +37,12 @@ import "url-search-params-polyfill"
 import "formdata-polyfill"
 import "classlist-polyfill"
 
-import {Socket} from "phoenix"
-import {LiveSocket} from "phoenix_live_view"
+import {
+  Socket
+} from "phoenix"
+import {
+  LiveSocket
+} from "phoenix_live_view"
 
 function car() {
   let group = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -122,13 +126,14 @@ function trunk(door_state, x, y, factor) {
   return group;
 }
 
-function pointer(bearing, el) {
-  let door_df = parseInt(el.getAttribute("data-door-df"));
-  let door_dr = parseInt(el.getAttribute("data-door-dr"));
-  let door_pf = parseInt(el.getAttribute("data-door-pf"));
-  let door_pr = parseInt(el.getAttribute("data-door-pr"));
-  let door_ft = parseInt(el.getAttribute("data-door-ft"));
-  let door_rt = parseInt(el.getAttribute("data-door-rt"));
+function pointer(tesla, el) {
+  let bearing = tesla.heading;
+  let door_df = tesla.doors_open;
+  let door_dr = tesla.doors_open;
+  let door_pf = tesla.doors_open;
+  let door_pr = tesla.doors_open;
+  let door_ft = tesla.frunk_open;
+  let door_rt = tesla.trunk_open;
 
   let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute('viewBox', '-5 -5 30 30');
@@ -151,9 +156,9 @@ function pointer(bearing, el) {
   str = `data:image/svg+xml;utf8,${str}`;
 
   return L.icon({
-      iconUrl: str,
-      iconSize: [64, 64],
-      iconAnchor: [32, 32],
+    iconUrl: str,
+    iconSize: [64, 64],
+    iconAnchor: [32, 32],
   });
 }
 
@@ -164,73 +169,79 @@ let tesla_marker = null;
 let people = {};
 
 Hooks.MapDetails = {
-    updated() {
-        if (tesla_marker != null) {
-          tesla_marker.setPopupContent(this.el.firstElementChild.cloneNode(true));
-        }
+  updated() {
+    if (tesla_marker != null) {
+      tesla_marker.setPopupContent(this.el.firstElementChild.cloneNode(true));
     }
+  }
 }
 
 Hooks.Map = {
-    mounted() {
-        let latitude = parseFloat(this.el.getAttribute("data-latitude"));
-        let longitude = parseFloat(this.el.getAttribute("data-longitude"));
-        let heading = parseFloat(this.el.getAttribute("data-heading"));
+  mounted() {
+    map = L.map('mapid', {
+      fullscreenControl: true,
+    });
 
-        map = L.map('mapid',
-            {
-                fullscreenControl: true,
-            }
-        );
+    // create the tile layer with correct attribution
+    let osmUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    let osmAttrib = 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
+    let osm = new L.TileLayer(osmUrl, {
+      minZoom: 8,
+      maxZoom: 19,
+      attribution: osmAttrib
+    });
+    map.addLayer(osm);
 
-        // create the tile layer with correct attribution
-        let osmUrl='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        let osmAttrib='Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors';
-        let osm = new L.TileLayer(osmUrl, {minZoom: 8, maxZoom: 19, attribution: osmAttrib});
-        map.addLayer(osm);
+    // map.setView([latitude, longitude], 16);
+    markers = L.markerClusterGroup().addTo(map);
 
-        map.setView([latitude, longitude], 16);
-        markers = L.markerClusterGroup().addTo(map);
-
-        tesla_marker = L.marker([latitude, longitude], {
-            icon: pointer(heading, this.el),
+    this.handleEvent("person", (person) => {
+      let id = person.id;
+      let latitude = person.location.latitude;
+      let longitude = person.location.longitude;
+      let icon = L.icon({
+        iconUrl: person.avatar,
+        iconSize: [67, 72],
+        iconAnchor: [33, 36],
+      })
+      if (people[id]) {
+        people[id].setLatLng([latitude, longitude]);
+        people[id].setIcon(icon);
+      } else {
+        people[id] = L.marker([latitude, longitude], {
+          icon: icon
         }).addTo(markers);
+        people[id].bindPopup(`${person.firstName} ${person.lastName}`);
+      }
+    })
 
+    this.handleEvent("tesla", (tesla) => {
+      let latitude = tesla.latitude;
+      let longitude = tesla.longitude;
+      let the_pointer = pointer(tesla, this.el);
+      if (tesla_marker) {
+        tesla_marker.setLatLng([latitude, longitude]);
+        tesla_marker.setIcon(the_pointer);
+      } else {
+        tesla_marker = L.marker([latitude, longitude], {
+          icon: the_pointer,
+        }).addTo(markers);
         tesla_marker.bindPopup(document.getElementById("details").cloneNode(true));
+      }
+      map.setView([latitude, longitude], 16);
+    })
+  },
 
-        this.handleEvent("person", function(person) {
-          let id = person.id;
-          let latitude = person.location.latitude;
-          let longitude = person.location.longitude;
-          let icon = L.icon({
-            iconUrl: person.avatar,
-            iconSize: [67, 72],
-            iconAnchor: [33, 36],
-          })
-
-          if (people[id]) {
-            people[id].setLatLng([latitude, longitude]);
-            people[id].setIcon(icon);
-          } else {
-            people[id] = L.marker([latitude, longitude], {icon: icon}).addTo(markers);
-            people[id].bindPopup(`${person.firstName} ${person.lastName}`);
-          }
-
-
-        })
-    },
-
-    updated() {
-        let latitude = parseFloat(this.el.getAttribute("data-latitude"));
-        let longitude = parseFloat(this.el.getAttribute("data-longitude"));
-        let heading = parseFloat(this.el.getAttribute("data-heading"));
-        map.setView([latitude, longitude], 16);
-        tesla_marker.setLatLng([latitude, longitude]).setIcon(pointer(heading, this.el));
-    }
+  updated() {}
 };
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content");
-let liveSocket = new LiveSocket("/live", Socket, {params: {_csrf_token: csrfToken}, hooks: Hooks});
+let liveSocket = new LiveSocket("/live", Socket, {
+  params: {
+    _csrf_token: csrfToken
+  },
+  hooks: Hooks
+});
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()

@@ -72,7 +72,11 @@ defmodule ScroogeWeb.Live.Tesla do
 
     tesla = Map.put(socket.assigns.tesla, key, payload)
 
-    socket = assign(socket, :tesla, tesla)
+    socket =
+      socket
+      |> assign(:tesla, tesla)
+      |> push_event("tesla", tesla)
+
     {:noreply, socket}
   end
 
