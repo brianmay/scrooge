@@ -22,7 +22,7 @@ defmodule ScroogeWeb.Live.Tesla do
     }
 
     for {key, name} <- attributes do
-      Scrooge.MqttMultiplexer.subscribe(
+      MqttPotion.Multiplexer.subscribe(
         ["teslamate", "cars", "1", name],
         key,
         self(),
@@ -31,7 +31,7 @@ defmodule ScroogeWeb.Live.Tesla do
       )
     end
 
-    Scrooge.MqttMultiplexer.subscribe(
+    MqttPotion.Multiplexer.subscribe(
       ["life360", "#"],
       :life360,
       self(),

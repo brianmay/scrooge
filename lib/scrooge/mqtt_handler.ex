@@ -23,7 +23,7 @@ defmodule Scrooge.MqttHandler do
 
   @impl MqttPotion.Handler
   def handle_message(_topic, message) do
-    Scrooge.MqttMultiplexer.message(message.topic, message.payload)
+    MqttPotion.Multiplexer.message(message.topic, message.payload)
     :ok
   end
 end
