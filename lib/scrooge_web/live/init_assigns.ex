@@ -6,7 +6,7 @@ defmodule ScroogeWeb.InitAssigns do
 
   alias ScroogeWeb.Router.Helpers, as: Routes
 
-  def mount(_params, session, socket) do
+  def on_mount(:default, _params, session, socket) do
     user = session["claims"]
 
     if user == nil do
