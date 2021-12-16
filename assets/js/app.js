@@ -205,9 +205,11 @@ Hooks.Map = {
         iconAnchor: [33, 36],
       })
       if (people[id]) {
+        console.log("old person", id, person, people[id]);
         people[id].setLatLng([latitude, longitude]);
         people[id].setIcon(icon);
       } else {
+        console.log("new person", id, person, people[id]);
         people[id] = L.marker([latitude, longitude], {
           icon: icon
         }).addTo(markers);
@@ -220,9 +222,11 @@ Hooks.Map = {
       let longitude = tesla.longitude;
       let the_pointer = pointer(tesla, this.el);
       if (tesla_marker) {
+        console.log("old tesla", tesla, tesla_marker);
         tesla_marker.setLatLng([latitude, longitude]);
         tesla_marker.setIcon(the_pointer);
       } else {
+        console.log("new tesla", tesla, tesla_marker);
         tesla_marker = L.marker([latitude, longitude], {
           icon: the_pointer,
         }).addTo(markers);
