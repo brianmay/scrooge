@@ -1,7 +1,19 @@
 /* This file is for your main application css. */
 
 @import "~bootstrap/scss/bootstrap";
-#mapid { height: 480px; }
+
+#mapid {
+   position: absolute;
+    z-index: -1;
+    top: 0em;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+.leaflet-left.leaflet-top {
+    top: 100px;
+}
 
 table .ACTUAL {
     color: black;

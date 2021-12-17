@@ -162,19 +162,61 @@ function pointer(tesla, el) {
   });
 }
 
+function add_row(tbody, heading, value) {
+  let tr = document.createElement("tr");
+  tbody.appendChild(tr);
+
+  let th = document.createElement("th");
+  th.appendChild(document.createTextNode(heading));
+  tr.appendChild(th);
+
+  let td = document.createElement("td");
+  td.appendChild(document.createTextNode(value));
+  tr.appendChild(td);
+}
+
+function get_tesla_content(tesla) {
+  let table = document.createElement("div");
+  table.setAttribute("class", "table");
+
+  let tbody = document.createElement("tbody");
+  table.appendChild(tbody);
+
+  add_row(tbody, "Speed/Heading", `${tesla.speed}/${tesla.heading}`);
+  add_row(tbody, "State", tesla.state);
+  add_row(tbody, "Doors Open", tesla.doors_open);
+  add_row(tbody, "Trunk Open", tesla.trunk_open);
+  add_row(tbody, "Frunk Open", tesla.trunk_open);
+  add_row(tbody, "Windows Open", tesla.windows_open);
+  add_row(tbody, "Plugged In", tesla.plugged_in);
+  add_row(tbody, "Geofence", tesla.geofence);
+  add_row(tbody, "Is User Present", tesla.is_user_present);
+  add_row(tbody, "Locked", tesla.locked);
+  return table;
+}
+
+function get_person_content(person) {
+  let table = document.createElement("div");
+  table.setAttribute("class", "table");
+
+  let tbody = document.createElement("tbody");
+  table.appendChild(tbody);
+
+  add_row(tbody, "Name", `${person.firstName}/${person.lastName}`);
+  add_row(tbody, "Battery", person.location.battery);
+  add_row(tbody, "Charge", person.location.charge);
+  add_row(tbody, "Is Driving", person.location.isDriving);
+  add_row(tbody, "In Transit", person.location.inTransit);
+  add_row(tbody, "Speed", person.location.speed);
+  return table;
+}
+
+
 let Hooks = {};
 let map = null;
 let markers = null;
 let tesla_marker = null;
 let people = {};
-
-Hooks.MapDetails = {
-  updated() {
-    if (tesla_marker != null) {
-      tesla_marker.setPopupContent(this.el.firstElementChild.cloneNode(true));
-    }
-  }
-}
 
 Hooks.Map = {
   mounted() {
@@ -192,7 +234,7 @@ Hooks.Map = {
     });
     map.addLayer(osm);
 
-    // map.setView([latitude, longitude], 16);
+    map.setView([-37.9, 145.2], 13);
     markers = L.markerClusterGroup().addTo(map);
 
     this.handleEvent("person", (person) => {
@@ -204,31 +246,40 @@ Hooks.Map = {
         iconSize: [67, 72],
         iconAnchor: [33, 36],
       })
+
+      let table = get_person_content(person);
       if (people[id]) {
         people[id].setLatLng([latitude, longitude]);
         people[id].setIcon(icon);
+        people[id].setPopupContent(table);
       } else {
         people[id] = L.marker([latitude, longitude], {
           icon: icon
         }).addTo(markers);
-        people[id].bindPopup(`${person.firstName} ${person.lastName}`);
+        people[id].bindPopup(table);
       }
     })
 
     this.handleEvent("tesla", (tesla) => {
+      if (!tesla.latitude) return;
+      if (!tesla.longitude) return;
+
       let latitude = tesla.latitude;
       let longitude = tesla.longitude;
       let the_pointer = pointer(tesla, this.el);
+
+      let table = get_tesla_content(tesla);
       if (tesla_marker) {
         tesla_marker.setLatLng([latitude, longitude]);
         tesla_marker.setIcon(the_pointer);
+        tesla_marker.setPopupContent(table);
       } else {
         tesla_marker = L.marker([latitude, longitude], {
           icon: the_pointer,
         }).addTo(markers);
-        tesla_marker.bindPopup(document.getElementById("details").cloneNode(true));
+        tesla_marker.bindPopup(table);
       }
-      map.setView([latitude, longitude], 16);
+      // map.setView([latitude, longitude], 16);
     })
   },
 
