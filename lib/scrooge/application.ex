@@ -49,7 +49,7 @@ defmodule Scrooge.Application do
          verify: :verify_peer,
          cacertfile: ca_cert_file
        ],
-       handler: Scrooge.MqttHandler,
+       handler_pid: MqttPotion.Multiplexer,
        subscriptions: []},
       {MqttPotion.Multiplexer, [mqtt_potion: Scrooge.Mqtt]}
     ]
