@@ -9,7 +9,7 @@
     "classlist-polyfill": "^1.2.0",
     "formdata-polyfill": "^4.0.10",
     "leaflet": "^1.7.1",
-    "leaflet.fullscreen": "^2.2.0",
+    "leaflet.fullscreen": "^2.3.0",
     "leaflet.markercluster": "^1.5.3",
     "mdn-polyfills": "^5.20.0",
     "phoenix": "file:../deps/phoenix",
