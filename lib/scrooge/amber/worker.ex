@@ -128,7 +128,7 @@ defmodule Scrooge.Amber.Worker do
     Phoenix.PubSub.broadcast(PubSub, @topic, {:usage, usage})
   end
 
-  defp notify_subscribers_done() do
+  defp notify_subscribers_done do
     Phoenix.PubSub.broadcast(PubSub, @topic, {:done})
   end
 
