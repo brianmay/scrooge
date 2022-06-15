@@ -10,8 +10,8 @@ ARG APP_VSN=0.1.0
 ARG MIX_ENV=prod
 # Set this to true if this release is not a Phoenix app
 ENV APP_VSN=${APP_VSN} \
-    MIX_ENV=${MIX_ENV} \
-    BUILD_WITHOUT_QUIC=true
+  MIX_ENV=${MIX_ENV} \
+  BUILD_WITHOUT_QUIC=true
 
 # By convention, /opt is typically used for applications
 WORKDIR /opt/app
@@ -20,10 +20,10 @@ WORKDIR /opt/app
 RUN apk update && \
   apk upgrade --no-cache && \
   apk add --no-cache \
-    nodejs \
-    npm \
-    git \
-    build-base && \
+  nodejs \
+  npm \
+  git \
+  build-base && \
   mix local.rebar --force && \
   mix local.hex --force
 
@@ -60,10 +60,10 @@ RUN mix release
 FROM alpine:${ALPINE_VERSION}
 
 RUN apk update && \
-    apk add --no-cache \
-      bash \
-      openssl-dev \
-      libstdc++
+  apk add --no-cache \
+  bash \
+  openssl-dev \
+  libstdc++
 
 RUN addgroup -S app && adduser -S app -G app
 WORKDIR /opt/app
