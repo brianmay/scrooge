@@ -12,6 +12,11 @@ defmodule ScroogeWeb.ViewHelpers do
     DateTime.to_iso8601(dt)
   end
 
+  def parse_date_time(str) do
+    {:ok, dt, _} = DateTime.from_iso8601(str)
+    dt
+  end
+
   def date_time_to_local(nil), do: nil
 
   def date_time_to_local(dt) do
@@ -20,6 +25,7 @@ defmodule ScroogeWeb.ViewHelpers do
     |> Timex.format!("%F %T", :strftime)
   end
 
+  @spec door_state(boolean) :: String.t()
   def door_state(value) do
     case value do
       true -> "Opened"

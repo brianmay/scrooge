@@ -11,7 +11,9 @@ config :scrooge,
     client_id: System.get_env("OIDC_CLIENT_ID"),
     client_secret: System.get_env("OIDC_CLIENT_SECRET"),
     scope: System.get_env("OIDC_AUTH_SCOPE")
-  }
+  },
+  amber_token: System.get_env("AMBER_TOKEN"),
+  amber_site_id: System.get_env("AMBER_SITE_ID")
 
 config :scrooge, Scrooge.Repo,
   url: System.get_env("DATABASE_URL"),

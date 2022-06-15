@@ -20,6 +20,9 @@
             <li class="nav-item">
                 <%= live_redirect("Aemo", to: Routes.aemo_path(@conn, :index), class: link_class(active, "aemo")) %>
             </li>
+             <li class="nav-item">
+                <%= live_redirect("Amber", to: Routes.amber_path(@conn, :index), class: link_class(active, "amber")) %>
+            </li>
             <li class="nav-item">
                 <%= live_redirect("Tesla", to: Routes.tesla_path(@conn, :index), class: link_class(active, "tesla")) %>
             </li>

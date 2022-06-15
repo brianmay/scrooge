@@ -21,6 +21,9 @@
                 <%= live_redirect("Aemo", to: Routes.aemo_path(@socket, :index), class: link_class(active, "aemo")) %>
             </li>
             <li class="nav-item">
+                <%= live_redirect("Amber", to: Routes.amber_path(@socket, :index), class: link_class(active, "amber")) %>
+            </li>
+            <li class="nav-item">
                 <%= live_redirect("Tesla", to: Routes.tesla_path(@socket, :index), class: link_class(active, "tesla")) %>
             </li>
             <%= if ScroogeWeb.Auth.user_is_admin?(user) do %>
