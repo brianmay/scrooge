@@ -1,4 +1,7 @@
 defmodule Scrooge.Amber.Worker do
+  @moduledoc """
+  Get Amber information
+  """
   use Task
   alias Scrooge.PubSub
   require Logger
