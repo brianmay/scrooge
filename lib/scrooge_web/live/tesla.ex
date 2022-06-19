@@ -21,23 +21,27 @@ defmodule ScroogeWeb.Live.Tesla do
       state: "state"
     }
 
-    for {key, name} <- attributes do
+    current_user = socket.assigns.current_user
+
+    if ScroogeWeb.Auth.user_is_admin?(current_user) do
+      for {key, name} <- attributes do
+        MqttPotion.Multiplexer.subscribe(
+          ["teslamate", "cars", "1", name],
+          key,
+          self(),
+          :raw,
+          :resend
+        )
+      end
+
       MqttPotion.Multiplexer.subscribe(
-        ["teslamate", "cars", "1", name],
-        key,
+        ["life360", "#"],
+        :life360,
         self(),
-        :raw,
+        :json,
         :resend
       )
     end
-
-    MqttPotion.Multiplexer.subscribe(
-      ["life360", "#"],
-      :life360,
-      self(),
-      :json,
-      :resend
-    )
 
     tesla =
       Enum.reduce(attributes, %{}, fn {key, _}, tesla ->
