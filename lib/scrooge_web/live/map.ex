@@ -1,4 +1,4 @@
-defmodule ScroogeWeb.Live.Tesla do
+defmodule ScroogeWeb.Live.Map do
   @moduledoc "Live view for Tesla"
   use ScroogeWeb, :live_view
 
@@ -52,7 +52,7 @@ defmodule ScroogeWeb.Live.Tesla do
       socket
       |> assign(:tesla, tesla)
       |> assign(:life360, %{})
-      |> assign(:active, "tesla")
+      |> assign(:active, "map")
 
     {:ok, socket}
   end

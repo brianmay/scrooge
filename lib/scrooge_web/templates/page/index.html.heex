@@ -5,7 +5,7 @@
 <%= if user != nil do %>
   <ul>
     <li>
-      <%= live_redirect "Telsa", to: Routes.tesla_path(@conn, :index) %>
+      <%= live_redirect "Map", to: Routes.map_path(@conn, :index) %>
     </li>
     <li>
       <%= live_redirect "Aemo", to: Routes.aemo_path(@conn, :index) %>

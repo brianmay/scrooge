@@ -56,7 +56,7 @@ defmodule ScroogeWeb.Router do
       get "/login", PageController, :login
       live "/aemo", Live.Aemo, :index
       live "/amber", Live.Amber, :index
-      live "/tesla", Live.Tesla, :index
+      live "/map", Live.Map, :index
     end
   end
 
