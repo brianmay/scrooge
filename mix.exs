@@ -54,7 +54,7 @@ defmodule Scrooge.MixProject do
       {:timex, "~> 3.5"},
       {:mojito, "~> 0.7.1"},
       {:libcluster, "~> 3.3"},
-      {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.2.0", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false},
       {:plugoid, "~> 0.6.0"},
       {:replug, "~> 0.1.0"}
