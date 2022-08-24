@@ -25,8 +25,8 @@ defmodule ScroogeWeb.Live.Map do
 
     if ScroogeWeb.Auth.user_is_admin?(current_user) do
       for {key, name} <- attributes do
-        MqttPotion.Multiplexer.subscribe(
-          ["teslamate", "cars", "1", name],
+        MqttPotion.Multiplexer.subscribe_str(
+          "teslamate/cars/1/#{name}",
           key,
           self(),
           :raw,
@@ -34,8 +34,8 @@ defmodule ScroogeWeb.Live.Map do
         )
       end
 
-      MqttPotion.Multiplexer.subscribe(
-        ["life360", "#"],
+      MqttPotion.Multiplexer.subscribe_str(
+        "life360/#",
         :life360,
         self(),
         :json,
