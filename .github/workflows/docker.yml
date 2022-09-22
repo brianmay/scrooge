@@ -1,4 +1,3 @@
-# force CI #1
 name: Build and Deploy to Docker Hub
 
 on:
@@ -8,13 +7,13 @@ on:
 jobs:
   test:
     name: Setup, Build, Test
-    uses: brianmay/workflows/.github/workflows/elixir.yaml@c5db981d6fa1e62aa3bdda7cfe1bb7c4112ee63c
+    uses: brianmay/workflows/.github/workflows/elixir.yaml@e5a000ff69ef3221ec84d3096cd9f22b73a35a37
     with:
       plts_cache_postfix: "-1"
 
   push:
     name: Push
-    uses: brianmay/workflows/.github/workflows/docker.yaml@c5db981d6fa1e62aa3bdda7cfe1bb7c4112ee63c
+    uses: brianmay/workflows/.github/workflows/docker.yaml@e5a000ff69ef3221ec84d3096cd9f22b73a35a37
     secrets:
       DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
     needs:
