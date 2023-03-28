@@ -23,7 +23,7 @@
     "bootstrap": "^5.2.3",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
-    "css-minimizer-webpack-plugin": "^4.2.2",
+    "css-minimizer-webpack-plugin": "^5.0.0",
     "glob": "9.3.2",
     "mini-css-extract-plugin": "^2.7.5",
     "node-sass": "^8.0.0",
