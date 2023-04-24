@@ -24,7 +24,7 @@
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.3",
     "css-minimizer-webpack-plugin": "^5.0.0",
-    "glob": "10.2.1",
+    "glob": "10.2.2",
     "mini-css-extract-plugin": "^2.7.5",
     "node-sass": "^8.0.0",
     "sass-loader": "^13.2.2",
